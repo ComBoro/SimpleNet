@@ -1,0 +1,47 @@
+<html>
+<body>
+<h3>Creating a plugin</h3>
+<ul>
+    <li>Make a project that includes in its build path FussterServer.jar</li>
+    <br>
+    <li>Create a class that extens FussterPlugin(or ServerPlugin, basicly any class extending FussterPlugin)</li>
+    <br>
+    <li>Create a file named 'info.dat'.</li>
+    <br>
+    <li>The file must start with the following text.</li>
+    <ul>
+        <li>name:</li>
+        <li>version:</li>
+        <li>main:</li>
+    </ul>
+    <br>
+    <li>Example:</li>
+    <ul>
+        <li>name:MyPlugin</li>
+        <li>version:0.0.1</li>
+        <li>main:mypackage.mysubpackage.MyPlugin</li>
+    </ul>
+    <br>
+    <li>Export as a jar</li>
+</ul>
+<h4>All posible beginnings with examples:</h4>
+<table border="1">
+    <tr>
+        <td>name*</td>
+        <td>MyPlugin</td>
+    </tr>
+    <tr>
+        <td>version*</td>
+        <td>0.0.1</td>
+    </tr>
+    <tr>
+        <td>main*</td>
+        <td>mypackage.mysubpackage.Myclass</td>
+    </tr>
+    <tr>
+        <td>author</td>
+        <td>ComBoro</td>
+    </tr>
+</table>
+</body>
+</html>
