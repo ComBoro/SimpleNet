@@ -1,20 +1,19 @@
 /*
- * This file is part of Fusster.
- *	
- * Fusster Copyright (C) ComBoro
+ *   ComBoro's Network Server
+ *   Copyright (C) 2018  ComBoro
  *
- * Fusster is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
-
- * Fusster is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ *   This program is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
  *
- * You should have received a copy of the GNU General Public License
- * along with Fusster.  If not, see <http://www.gnu.org/licenses/>.
+ *   This program is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 package net.comboro;
@@ -36,276 +35,263 @@ import java.util.Vector;
 
 public final class SServer {
 
-	private static BetterUI betterUI;
-	private static ServerInfo serverInfo;
-	private static PluginLoader pluginLoader;
-	private static PluginMap pluginMap;
-	private static boolean offline = false;
-	private static String publicIP = "127.0.0.1";
-	public static String localIP = new String(publicIP);
-	private static int port;
+    public static final Color error = new Color(178, 34, 34);
+    public static final String BAN_MESSEGE = "Connection establishment prohibited.";
+    public static TCPServerImpl tcp_server;
+    private static BetterUI betterUI;
+    private static ServerInfo serverInfo;
+    private static PluginLoader pluginLoader;
+    private static PluginMap pluginMap;
+    private static boolean offline = false;
+    private static String publicIP = "127.0.0.1";
+    public static String localIP = new String(publicIP);
+    private static int port;
+    private static Color defaultColour = Color.BLACK;
+    private static Properties properties = new Properties();
 
-	public static final Color error = new Color(178, 34, 34);
-	private static Color defaultColour = Color.BLACK;
+    public static void append(String append) {
+        if (betterUI != null)
+            betterUI.append(append, defaultColour);
+    }
 
-	public static final String BAN_MESSEGE = "Connection establishment prohibited.";
+    public static void append(String append, Color color) {
+        betterUI.append(append, color);
+    }
 
-	private static Properties properties = new Properties();
-	
-	private static TCPServerImpl tcp_server;
+    /**
+     * Prevent an {@link InetAddress} from connecting to the server
+     *
+     * @param string the String representing an {@link InetAddress}
+     */
+    public static void ban(String string) {
+        serverInfo.ban(string);
+    }
 
-	public static void append(String append) {
-		if (betterUI != null)
-			betterUI.append(append, defaultColour);
-	}
+    /**
+     * Check if a key is contained in the properties
+     *
+     * @param key an indetifier
+     * @return if the properties contain the key
+     */
+    public static boolean containsKey(String key) {
+        return properties.containsKey(key);
+    }
 
-	public static void append(String append, Color color) {
-		betterUI.append(append, color);
-	}
+    public static void debug(Plugin fp, String string) {
+        append("[" + fp.getDescription().getName() + "] " + string);
+    }
 
-	/**
-	 * Prevent an {@link InetAddress} from connecting to the server
-	 * 
-	 * @param string
-	 *            the String representing an {@link InetAddress}
-	 */
-	public static void ban(String string) {
-		serverInfo.ban(string);
-	}
+    public static void debug(String append) {
+        if (betterUI.isDebugging()) {
+            append(append);
+        }
+    }
 
-	/**
-	 * Check if a key is contained in the properties
-	 * 
-	 * @param key
-	 *            an indetifier
-	 * @return if the properties contain the key
-	 */
-	public static boolean containsKey(String key) {
-		return properties.containsKey(key);
-	}
+    public static void debug(String append, Color color) {
+        if (betterUI.isDebugging()) {
+            append(append, color);
+        }
+    }
 
-	public static void debug(Plugin fp, String string) {
-		append("[" + fp.getDescription().getName() + "] " + string);
-	}
+    public static void error(String error) {
+        debug(error, SServer.error);
+    }
 
-	public static void debug(String append) {
-		if (betterUI.isDebugging()) {
-			append(append);
-		}
-	}
+    private static void findIP() {
+        try {
+            publicIP = new BufferedReader(new InputStreamReader(new URL(
+                    "http://bot.whatismyipaddress.com/").openStream()))
+                    .readLine();
+            localIP = InetAddress.getLocalHost().getHostAddress();
+        } catch (Exception e) {
+            SServer.setOffline(true);
+        }
+    }
 
-	public static void debug(String append, Color color) {
-		if (betterUI.isDebugging()) {
-			append(append, color);
-		}
-	}
+    /**
+     * @return The {@link Vector} of type {@link String} containing all the
+     * banned Internet Protocols
+     */
+    public static Vector<String> getBanList() {
+        return serverInfo.getBanList();
+    }
 
-	public static void error(String error) {
-		debug(error, SServer.error);
-	}
+    /**
+     * Gets the public address of the server
+     *
+     * @return The public address of the server
+     */
+    public static String getIP() {
+        return publicIP;
+    }
 
-	private static void findIP() {
-		try {
-			publicIP = new BufferedReader(new InputStreamReader(new URL(
-					"http://bot.whatismyipaddress.com/").openStream()))
-					.readLine();
-			localIP = InetAddress.getLocalHost().getHostAddress();
-		} catch (Exception e) {
-			SServer.setOffline(true);
-		}
-	}
+    /**
+     * @return The name of the server
+     */
+    public static String getName() {
+        return serverInfo.getName();
+    }
 
-	/**
-	 * @return The {@link Vector} of type {@link String} containing all the
-	 *         banned Internet Protocols
-	 */
-	public static Vector<String> getBanList() {
-		return serverInfo.getBanList();
-	}
+    /**
+     * @return The default {@link PluginLoader} initialised in the main method
+     */
+    public static PluginLoader getPluginLoader() {
+        return pluginLoader;
+    }
 
-	/**
-	 * Gets the public address of the server
-	 * 
-	 * @return The public address of the server
-	 */
-	public static String getIP() {
-		return publicIP;
-	}
+    /**
+     * @return The default {@link PluginMap} initialised in the main method
+     */
+    public static PluginMap getPluginMap() {
+        return pluginMap;
+    }
 
-	/**
-	 * @return The name of the server
-	 */
-	public static String getName() {
-		return serverInfo.getName();
-	}
+    /**
+     * @return The port that the server is currently running on
+     */
+    public static int getPort() {
+        return port;
+    }
 
-	/**
-	 * @return The default {@link PluginLoader} initialised in the main method
-	 */
-	public static PluginLoader getPluginLoader() {
-		return pluginLoader;
-	}
+    /**
+     * Gets the {@link Properties} instance.
+     *
+     * @return the {@link Properties} instance
+     */
+    public static Properties getProperties() {
+        return properties;
+    }
 
-	/**
-	 * @return The default {@link PluginMap} initialised in the main method
-	 */
-	public static PluginMap getPluginMap() {
-		return pluginMap;
-	}
+    /**
+     * Returns a server property
+     *
+     * @param key an indetifier
+     * @return A value matching the key given
+     * @see #setProperty(String, String)
+     */
+    public static String getProperty(String key) {
+        return properties.getProperty(key);
+    }
 
-	/**
-	 * @return The port that the server is currently running on
-	 */
-	public static int getPort() {
-		return port;
-	}
+    /**
+     * @return an instance of the {@link BetterUI}
+     */
+    public static BetterUI getServerUI() {
+        return betterUI;
+    }
 
-	/**
-	 * Gets the {@link Properties} instance.
-	 * 
-	 * @return the {@link Properties} instance
-	 */
-	public static Properties getProperties() {
-		return properties;
-	}
+    private static void initProperties() {
+        properties.setProperty("name", serverInfo.getName());
+        properties.setProperty("version", ServerInfo.VERSION);
+    }
 
-	/**
-	 * Returns a server property
-	 * 
-	 * @param key
-	 *            an indetifier
-	 * @return A value matching the key given
-	 * @see #setProperty(String, String)
-	 */
-	public static String getProperty(String key) {
-		return properties.getProperty(key);
-	}
+    /**
+     * @return the server debugging state
+     */
+    public static boolean isDebugging() {
+        return serverInfo.isDebugging();
+    }
 
-	/**
-	 * @return an instance of the {@link BetterUI}
-	 */
-	public static BetterUI getServerUI() {
-		return betterUI;
-	}
+    /**
+     * Change the debugging state of the server
+     *
+     * @param debugging the new debugging state
+     */
+    public static void setDebugging(boolean debugging) {
+        serverInfo.setDebugging(debugging);
+    }
 
-	private static void initProperties() {
-		properties.setProperty("name", serverInfo.getName());
-		properties.setProperty("version", ServerInfo.VERSION);
-	}
+    /**
+     * @return if the server is offline
+     */
+    public static boolean isOffline() {
+        return offline;
+    }
 
-	/**
-	 * @return the server debugging state
-	 */
-	public static boolean isDebugging() {
-		return serverInfo.isDebugging();
-	}
+    /**
+     * Set the server as online or offline.
+     *
+     * @param offline set the server's offline state
+     */
+    public static void setOffline(boolean offline) {
+        SServer.offline = offline;
+    }
 
-	/**
-	 * @return if the server is offline
-	 */
-	public static boolean isOffline() {
-		return offline;
-	}
+    public static void log(String string) {
+        if (serverInfo.logger != null)
+            serverInfo.logger.print(string);
+    }
 
-	public static void log(String string) {
-		if (serverInfo.logger != null)
-			serverInfo.logger.print(string);
-	}
+    public static void main(String[] args) {
+        // Load GUI
+        betterUI = new BetterUI();
+        // Load the server configuration
+        serverInfo = new ServerInfo();
+        // Get config port
+        port = serverInfo.getPort();
 
-	public static void main(String[] args) {
-		// Load GUI
-		betterUI = new BetterUI();
-		// Load the server configuration
-		serverInfo = new ServerInfo();
-		// Get config port
-		port = serverInfo.getPort();
-		
-		tcp_server = new TCPServerImpl(port);
-		tcp_server.startServer();
-		
-		// Basic auto response
-		initProperties();
-		// Register default commands
-		CommandMap.addDefaults();
-		// Get the plublic ip
-		findIP();
-		// Loader the basic Plugin Map
-		pluginMap = new PluginMap();
-		// Loader the loader loading plugins from 'plugins'
-		pluginLoader = new PluginLoader(pluginMap, Loader.loadDirectory("plugins"));
-		// Load all plugins
-		pluginLoader.loadAll();
-	}
+        tcp_server = new TCPServerImpl(port);
+        tcp_server.startServer();
 
-	/**
-	 * Change the debugging state of the server
-	 * 
-	 * @param debugging
-	 *            the new debugging state
-	 */
-	public static void setDebugging(boolean debugging) {
-		serverInfo.setDebugging(debugging);
-	}
+        // Basic auto response
+        initProperties();
+        // Register default commands
+        CommandMap.addDefaults();
+        // Get the plublic ip
+        findIP();
+        // Loader the basic Plugin Map
+        pluginMap = new PluginMap();
+        // Loader the loader loading plugins from 'plugins'
+        pluginLoader = new PluginLoader(pluginMap, Loader.loadDirectory("plugins"));
+        // Load all plugins
+        pluginLoader.loadAll();
+    }
 
-	/**
-	 * Set the server as online or offline.
-	 * 
-	 * @param offline
-	 *            set the server's offline state
-	 */
-	public static void setOffline(boolean offline) {
-		SServer.offline = offline;
-	}
+    /**
+     * Set a property in the server properties
+     *
+     * @param key   an indetifier
+     * @param value value licked to the indetifier
+     */
+    public static void setProperty(String key, String value) {
+        properties.setProperty(key, value);
+    }
 
-	/**
-	 * Set a property in the server properties
-	 * 
-	 * @param key
-	 *            an indetifier
-	 * @param value
-	 *            value licked to the indetifier
-	 */
-	public static void setProperty(String key, String value) {
-		properties.setProperty(key, value);
-	}
+    /**
+     * Shuts down the server and disconnects all players sending them the server
+     * close message.
+     *
+     * @param halt if the FussterServer proccess should be terminated
+     */
+    public static void shutdown(boolean halt) {
+        serverInfo.logger.close();
+        properties.clear();
+        if (pluginLoader != null)
+            getPluginLoader().unloadAll();
+        if (halt)
+            Runtime.getRuntime().halt(0);
+    }
 
-	/**
-	 * Shuts down the server and disconnects all players sending them the server
-	 * close message.
-	 * 
-	 * @param halt
-	 *            if the FussterServer proccess should be terminated
-	 */
-	public static void shutdown(boolean halt) {
-		serverInfo.logger.close();
-		properties.clear();
-		if (pluginLoader != null)
-			getPluginLoader().unloadAll();
-		if (halt)
-			Runtime.getRuntime().halt(0);
-	}
+    /**
+     * Unban an {@link InetAddress}
+     *
+     * @param string the {@link InetAddress} as String
+     * @return if the unban was successful
+     */
+    public static boolean unban(String string) {
+        return serverInfo.unban(string);
+    }
 
-	/**
-	 * Unban an {@link InetAddress}
-	 * 
-	 * @param string
-	 *            the {@link InetAddress} as String
-	 * @return if the unban was successful
-	 */
-	public static boolean unban(String string) {
-		return serverInfo.unban(string);
-	}
-	
-	public static void setDefaultColour(Color color) {
-		defaultColour = color;
-	}
-	
-	public static void resetDefaultColour() {
-		defaultColour = Color.BLACK;
-	}
-	
-	public static Color getDefaultColour() {
-		return new Color(defaultColour.getRed(), defaultColour.getGreen(), defaultColour.getBlue());
-	}
+    public static void resetDefaultColour() {
+        defaultColour = Color.BLACK;
+    }
+
+    public static Color getDefaultColour() {
+        return new Color(defaultColour.getRed(), defaultColour.getGreen(), defaultColour.getBlue());
+    }
+
+    public static void setDefaultColour(Color color) {
+        defaultColour = color;
+    }
 
 }

@@ -26,50 +26,50 @@ import net.comboro.command.CommandSender;
 
 public class HelpCommand extends DefaultCommand {
 
-	public HelpCommand() {
-		super("Help Command", "Lists all registered commands",
-				"help all/<cmdName>");
-	}
+    public HelpCommand() {
+        super("Help Command", "Lists all registered commands",
+                "help all/<cmdName>");
+    }
 
-	@Override
-	public boolean execute(CommandSender sender, String[] args) {
+    @Override
+    public boolean execute(CommandSender sender, String[] args) {
 
-		boolean listAll = false;
-		if (args.length != 0)
-			listAll = args[0].equalsIgnoreCase("all");
+        boolean listAll = false;
+        if (args.length != 0)
+            listAll = args[0].equalsIgnoreCase("all");
 
-		if (args.length > 0 && !listAll) {
+        if (args.length > 0 && !listAll) {
 
-			if (args[0].equals("threads")) {
-				sender.sendMessage("Active Threads : " + Thread.activeCount());
-				return true;
-			}
+            if (args[0].equals("threads")) {
+                sender.sendMessage("Active Threads : " + Thread.activeCount());
+                return true;
+            }
 
-			Command command = CommandMap.getCommand(args[0]);
-			if (command == null) {
-				sender.sendMessage("Command not found");
-				return true;
-			}
-			sender.sendMessage("Name: " + command.getName() + ", Usage: "
-					+ command.getUsageMessage() + ", Description: "
-					+ command.getDescription());
-			return true;
-		}
+            Command command = CommandMap.getCommand(args[0]);
+            if (command == null) {
+                sender.sendMessage("Command not found");
+                return true;
+            }
+            sender.sendMessage("Name: " + command.getName() + ", Usage: "
+                    + command.getUsageMessage() + ", Description: "
+                    + command.getDescription());
+            return true;
+        }
 
-		if (listAll)
-			SServer.append("Listing all hidden & unhidden commands");
-		sender.sendMessage("List of Commands: ");
-		for (int i = 0; i < CommandMap.getCommands().values().size(); i++) {
-			Command command = (Command) CommandMap.getCommands().values()
-					.toArray()[i];
-			if (command.isListable() || listAll)
-				sender.sendMessage(i + ") Name: " + command.getName()
-						+ ", Usage: " + command.getUsageMessage()
-						+ ", Description: " + command.getDescription());
-			// else i--;
-		}
+        if (listAll)
+            SServer.append("Listing all hidden & unhidden commands");
+        sender.sendMessage("List of Commands: ");
+        for (int i = 0; i < CommandMap.getCommands().values().size(); i++) {
+            Command command = (Command) CommandMap.getCommands().values()
+                    .toArray()[i];
+            if (command.isListable() || listAll)
+                sender.sendMessage(i + ") Name: " + command.getName()
+                        + ", Usage: " + command.getUsageMessage()
+                        + ", Description: " + command.getDescription());
+            // else i--;
+        }
 
-		return true;
-	}
+        return true;
+    }
 
 }

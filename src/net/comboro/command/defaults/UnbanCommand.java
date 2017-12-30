@@ -24,21 +24,21 @@ import net.comboro.command.CommandSender;
 
 public class UnbanCommand extends DefaultCommand {
 
-	public UnbanCommand() {
-		super("UnbanCommand", "Unbans an ip", "/unban 1.1.1.1");
-	}
+    public UnbanCommand() {
+        super("UnbanCommand", "Unbans an ip", "/unban 1.1.1.1");
+    }
 
-	@Override
-	public boolean execute(CommandSender sender, String[] args) {
-		if (args.length == 0)
-			return false;
-		String ip = args[0].trim();
-		boolean status = SServer.unban(ip);
-		if (status)
-			sender.sendMessage("Successfully unbaned " + ip + ".");
-		else
-			sender.sendMessage("Failed to unban " + ip + ".");
-		return status;
-	}
+    @Override
+    public boolean execute(CommandSender sender, String[] args) {
+        if (args.length == 0)
+            return false;
+        String ip = args[0].trim();
+        boolean status = SServer.unban(ip);
+        if (status)
+            sender.sendMessage("Successfully unbaned " + ip + ".");
+        else
+            sender.sendMessage("Failed to unban " + ip + ".");
+        return status;
+    }
 
 }

@@ -25,25 +25,25 @@ import net.comboro.command.CommandSender;
 
 public class BanCommand extends DefaultCommand {
 
-	public BanCommand() {
-		super("BanCommand",
-				"Bans an internet protocol from establishing a connection",
-				"/ban <ip>");
-	}
+    public BanCommand() {
+        super("BanCommand",
+                "Bans an internet protocol from establishing a connection",
+                "/ban <ip>");
+    }
 
-	@Override
-	public boolean execute(CommandSender sender, String[] args) {
-		if (args.length == 0) {
-			sender.sendMessage("Invalid arguments");
-			return false;
-		}
+    @Override
+    public boolean execute(CommandSender sender, String[] args) {
+        if (args.length == 0) {
+            sender.sendMessage("Invalid arguments");
+            return false;
+        }
 
-		SServer.ban(args[0]);
+        SServer.ban(args[0]);
 
-		sender.sendMessage("All clients with Internet Protocol " + args[0]
-				+ " were banned from the server.");
+        sender.sendMessage("All clients with Internet Protocol " + args[0]
+                + " were banned from the server.");
 
-		return false;
-	}
+        return false;
+    }
 
 }

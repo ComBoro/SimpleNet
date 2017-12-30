@@ -1,20 +1,19 @@
 /*
- * This file is part of Fusster.
+ *   ComBoro's Network Server
+ *   Copyright (C) 2018  ComBoro
  *
- * Fusster Copyright (C) ComBoro
+ *   This program is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
  *
- * Fusster is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
-
- * Fusster is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ *   This program is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Fusster.  If not, see <http://www.gnu.org/licenses/>.
+ *   You should have received a copy of the GNU General Public License
+ *   along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 package net.comboro;
@@ -28,251 +27,245 @@ import java.util.Vector;
 
 public class ServerInfo {
 
-	public static final String VERSION = "Alpha 01F0E";
+    public static final String VERSION = "Alpha 01F0E";
+    public PrintWriter logger;
+    private int port;
+    private String name;
+    private boolean debugging;
+    private Vector<String> banList = new Vector<String>();
 
-	private int port;
-	private String name;
-	private boolean debugging;
+    private File banListFile;
 
-	public PrintWriter logger;
+    public ServerInfo() {
+        loadLogger();
+        loadServerConfig();
+        loadBanList();
+    }
 
-	private Vector<String> banList = new Vector<String>();
+    /**
+     * Adds an String representing an {@link InetAddress} to the list of
+     * prevented users
+     *
+     * @param string the String version of the {@link InetAddress} that is going to
+     *               be banned
+     */
+    public void ban(String string) {
+        if (banList.contains(string))
+            return;
 
-	private File banListFile;
+        banList.addElement(string);
+        updateBanListFile();
+    }
 
-	public ServerInfo() {
-		loadLogger();
-		loadServerConfig();
-		loadBanList();
-	}
+    private void closeRedaer(Reader reader) {
+        try {
+            reader.close();
+        } catch (IOException e) {
+        }
+    }
 
-	/**
-	 * Adds an String representing an {@link InetAddress} to the list of
-	 * prevented users
-	 *
-	 * @param string
-	 *            the String version of the {@link InetAddress} that is going to
-	 *            be banned
-	 */
-	public void ban(String string) {
-		if (banList.contains(string))
-			return;
+    /**
+     * Creates a default configuration file that is valid
+     *
+     * @param writer the initialised {@link PrintWriter} with the open
+     *               configuration file
+     */
+    private void createDefault(PrintWriter writer) {
+        writer.println("// Default generated Server Configuration File");
+        writer.println("Name: TCP Server");
+        writer.println("Port: 47247");
+        writer.println("Max players: 16");
+    }
 
-		banList.addElement(string);
-		updateBanListFile();
-	}
+    public Vector<String> getBanList() {
+        return banList;
+    }
 
-	private void closeRedaer(Reader reader) {
-		try {
-			reader.close();
-		} catch (IOException e) {}
-	}
+    public String getName() {
+        return name;
+    }
 
-	/**
-	 * Creates a default configuration file that is valid
-	 *
-	 * @param writer
-	 *            the initialised {@link PrintWriter} with the open
-	 *            configuration file
-	 */
-	private void createDefault(PrintWriter writer) {
-		writer.println("// Default generated Server Configuration File");
-		writer.println("Name: TCP Server");
-		writer.println("Port: 47247");
-		writer.println("Max players: 16");
-	}
+    public int getPort() {
+        return port;
+    }
 
-	public Vector<String> getBanList() {
-		return banList;
-	}
+    private BufferedReader getReader(File file) {
+        try {
+            return new BufferedReader(new FileReader(file));
+        } catch (FileNotFoundException e) {
+            return null;
+        }
+    }
 
-	public String getName() {
-		return name;
-	}
+    private PrintWriter getWriter(File file) {
+        try {
+            return new PrintWriter(new FileWriter(file, true));
+        } catch (IOException e) {
+            return null;
+        }
+    }
 
-	public int getPort() {
-		return port;
-	}
+    public boolean isDebugging() {
+        return debugging;
+    }
 
-	private BufferedReader getReader(File file) {
-		try {
-			return new BufferedReader(new FileReader(file));
-		} catch (FileNotFoundException e) {
-			return null;
-		}
-	}
+    public void setDebugging(boolean debugging) {
+        this.debugging = debugging;
+    }
 
-	private PrintWriter getWriter(File file) {
-		try {
-			return new PrintWriter(new FileWriter(file, true));
-		} catch (IOException e) {
-			return null;
-		}
-	}
+    /**
+     * Reads the ban list and adds every single line to the list of prevented
+     * users.
+     */
+    private void loadBanList() {
+        // Get Server Configuration File
+        banListFile = Loader.loadFile("banlist.dat");
+        // Initialise reader and writer
+        BufferedReader banListReader = getReader(banListFile);
 
-	public boolean isDebugging() {
-		return debugging;
-	}
+        readBanList(banListReader);
+    }
 
-	/**
-	 * Reads the ban list and adds every single line to the list of prevented
-	 * users.
-	 */
-	private void loadBanList() {
-		// Get Server Configuration File
-		banListFile = Loader.loadFile("banlist.dat");
-		// Initialise reader and writer
-		BufferedReader banListReader = getReader(banListFile);
+    /**
+     * Loads the server configuration file and validates it if needed. In some
+     * cases it may create a default one
+     */
 
-		readBanList(banListReader);
-	}
+    public void loadLogger() {
+        try {
+            File logs = Loader.loadDirectory("logs");
+            File currentLog = new File(logs, System.currentTimeMillis()
+                    + ".log");
+            this.logger = new PrintWriter(currentLog);
+        } catch (Exception e) {
+            SServer.error("Failed to load the logger. Exception: "
+                    + e.getMessage());
+        }
+    }
 
-	public void loadLogger() {
-		try {
-			File logs = Loader.loadDirectory("logs");
-			File currentLog = new File(logs, System.currentTimeMillis()
-					+ ".log");
-			this.logger = new PrintWriter(currentLog);
-		} catch (Exception e) {
-			SServer.error("Failed to load the logger. Exception: "
-					+ e.getMessage());
-		}
-	}
+    /**
+     *
+     */
+    private void loadServerConfig() {
+        // Get Server Configuration File
+        File serverConfig = Loader.loadFile("server.info");
+        // Init reader and writer
+        BufferedReader reader = getReader(serverConfig);
+        PrintWriter writer = getWriter(serverConfig);
 
-	/**
-	 * Loads the server configuration file and validates it if needed. In some
-	 * cases it may create a default one
-	 */
-	/**
-	 *
-	 */
-	private void loadServerConfig() {
-		// Get Server Configuration File
-		File serverConfig = Loader.loadFile("server.info");
-		// Init reader and writer
-		BufferedReader reader = getReader(serverConfig);
-		PrintWriter writer = getWriter(serverConfig);
+        // Use Reader && Writer
+        boolean result = readConfig(reader);
+        if (!result) {
+            SServer.error("Invalid config");
+            createDefault(writer);
+            writer.close();
+            reader = getReader(serverConfig);
+            readConfig(reader);
+            closeRedaer(reader);
+            return;
+        }
 
-		// Use Reader && Writer
-		boolean result = readConfig(reader);
-		if (!result) {
-			SServer.error("Invalid config");
-			createDefault(writer);
-			writer.close();
-			reader = getReader(serverConfig);
-			readConfig(reader);
-			closeRedaer(reader);
-			return;
-		}
+        // Close reader && writer
+        closeRedaer(reader);
+        writer.close();
+    }
 
-		// Close reader && writer
-		closeRedaer(reader);
-		writer.close();
-	}
+    /**
+     * Reads the ban list file and adds it to the list of prevented users
+     *
+     * @param banListReader the initialised {@link BufferedReader} containing the ban list
+     *                      file
+     */
+    private void readBanList(BufferedReader banListReader) {
+        try {
+            if (!banListReader.ready())
+                return;
 
-	/**
-	 * Reads the ban list file and adds it to the list of prevented users
-	 *
-	 * @param banListReader
-	 *            the initialised {@link BufferedReader} containing the ban list
-	 *            file
-	 */
-	private void readBanList(BufferedReader banListReader) {
-		try {
-			if (!banListReader.ready())
-				return;
+            String line = "";
+            // Use set to ignore duplicates
+            Set<String> temp = new HashSet<String>();
+            while ((line = banListReader.readLine()) != null) {
+                temp.add(line);
+            }
+            banList.addAll(temp);
+            temp.clear();
+            banListReader.close();
+        } catch (IOException e) {
+            SServer.error(e.getMessage());
+        }
+    }
 
-			String line = "";
-			// Use set to ignore duplicates
-			Set<String> temp = new HashSet<String>();
-			while ((line = banListReader.readLine()) != null) {
-				temp.add(line);
-			}
-			banList.addAll(temp);
-			temp.clear();
-			banListReader.close();
-		} catch (IOException e) {
-			SServer.error(e.getMessage());
-		}
-	}
+    /**
+     * Reads the config, sets the data and returns if is valid.
+     *
+     * @param reader the initialised {@link BufferedReader} with the open
+     *               configuration file
+     * @return if the config is valid
+     */
+    private boolean readConfig(BufferedReader reader) {
+        try {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                if (line.startsWith("//"))
+                    continue;
+                if (line.contains(":")) {
+                    String[] split = line.split(":");
+                    String variable = split[0].trim();
+                    String value = split[1].trim();
+                    switch (variable) {
+                        case "Name":
+                            name = String.valueOf(value);
+                            break;
+                        case "Port":
+                            port = Integer.valueOf(value);
+                            break;
+                        case "Debugging":
+                            debugging = Boolean.valueOf(value);
+                            break;
+                    }
+                }
+            }
+            return valid();
+        } catch (IOException e) {
+            return false;
+        }
+    }
 
-	/**
-	 * Reads the config, sets the data and returns if is valid.
-	 *
-	 * @param reader
-	 *            the initialised {@link BufferedReader} with the open
-	 *            configuration file
-	 * @return if the config is valid
-	 */
-	private boolean readConfig(BufferedReader reader) {
-		try {
-			String line;
-			while ((line = reader.readLine()) != null) {
-				if (line.startsWith("//"))
-					continue;
-				if (line.contains(":")) {
-					String[] split = line.split(":");
-					String variable = split[0].trim();
-					String value = split[1].trim();
-					switch (variable) {
-					case "Name":
-						name = String.valueOf(value);
-						break;
-					case "Port":
-						port = Integer.valueOf(value);
-						break;
-					case "Debugging":
-						debugging = Boolean.valueOf(value);
-						break;
-					}
-				}
-			}
-			return valid();
-		} catch (IOException e) {
-			return false;
-		}
-	}
+    /**
+     * Removes a player from the ban list
+     *
+     * @param string the String version of the {@link InetAddress} that will be
+     *               removed from the list of prevented users
+     * @return if the removal was successful
+     */
+    public boolean unban(String string) {
+        boolean status = banList.removeElement(string);
+        updateBanListFile();
+        return status;
+    }
 
-	public void setDebugging(boolean debugging) {
-		this.debugging = debugging;
-	}
+    /**
+     * Updates the file of prevented users by clearing it and rewriting it.
+     */
+    public void updateBanListFile() {
+        try {
+            new FileWriter(banListFile).close();
 
-	/**
-	 * Removes a player from the ban list
-	 *
-	 * @param string
-	 *            the String version of the {@link InetAddress} that will be
-	 *            removed from the list of prevented users
-	 * @return if the removal was successful
-	 */
-	public boolean unban(String string) {
-		boolean status = banList.removeElement(string);
-		updateBanListFile();
-		return status;
-	}
+            PrintWriter writer = getWriter(banListFile);
 
-	/**
-	 * Updates the file of prevented users by clearing it and rewriting it.
-	 */
-	public void updateBanListFile() {
-		try {
-			new FileWriter(banListFile).close();
+            Set<String> set = new HashSet<String>(banList);
+            Iterator<String> it = set.iterator();
+            while (it.hasNext())
+                writer.println(it.next());
+            set.clear();
 
-			PrintWriter writer = getWriter(banListFile);
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
-			Set<String> set = new HashSet<String>(banList);
-			Iterator<String> it = set.iterator();
-			while (it.hasNext())
-				writer.println(it.next());
-			set.clear();
-
-			writer.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-
-	private boolean valid() {
-		return name != null && !name.equals("");
-	}
+    private boolean valid() {
+        return name != null && !name.equals("");
+    }
 }
