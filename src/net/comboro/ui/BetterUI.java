@@ -27,12 +27,8 @@ import net.comboro.plugin.Plugin;
 import net.comboro.plugin.PluginException;
 import net.comboro.plugin.PluginMap;
 
-import javax.swing.*;
-import javax.swing.text.*;
-import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.io.*;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;

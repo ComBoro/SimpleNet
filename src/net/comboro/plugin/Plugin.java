@@ -24,8 +24,6 @@ import net.comboro.command.Command;
 import net.comboro.command.CommandSender;
 import net.comboro.internet.tcp.FinalClientTCP;
 
-import javax.swing.*;
-import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
