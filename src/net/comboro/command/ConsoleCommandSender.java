@@ -20,6 +20,8 @@ package net.comboro.command;
 
 import net.comboro.SServer;
 
+import java.awt.*;
+
 public class ConsoleCommandSender implements CommandSender {
 
     private static final ConsoleCommandSender sender = new ConsoleCommandSender();

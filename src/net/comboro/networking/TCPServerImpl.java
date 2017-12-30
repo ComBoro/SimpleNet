@@ -18,6 +18,7 @@
 
 package net.comboro.networking;
 
+import net.comboro.SServer;
 import net.comboro.SerializableMessage;
 import net.comboro.Server.ServerListener.ServerAdapter;
 import net.comboro.internet.tcp.ClientTCP;
@@ -29,20 +30,17 @@ import static net.comboro.SServer.*;
 
 public class TCPServerImpl extends ServerTCP {
 
-    private final ServerAdapter<ClientTCP> SERVER_ADAPTER = new ServerAdapter<>() {
+    private final ServerAdapter<ClientTCP> SERVER_ADAPTER = new ServerAdapter<ClientTCP>() {
         @Override
         public void onClientConnect(ClientTCP client) {
             append("New client connected. ");
+            SServer.getPluginMap().onClientJoin(client);
         }
 
         @Override
         public void onClientInput(ClientTCP client,
                                   SerializableMessage message) {
-            if (message.getData() instanceof String) {
-                append("Client input: " + message.getData());
-            } else {
-                append("Client non-string input.");
-            }
+            SServer.getPluginMap().onClientInput(client, message);
         }
 
         @Override
@@ -62,6 +60,7 @@ public class TCPServerImpl extends ServerTCP {
         @Override
         public void onClientDisconnect(ClientTCP client) {
             append("Client disconnected");
+            SServer.getPluginMap().onClientDisconnect(client);
         }
     };
 

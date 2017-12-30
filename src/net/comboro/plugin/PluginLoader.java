@@ -21,7 +21,6 @@ package net.comboro.plugin;
 import net.comboro.SServer;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
@@ -240,7 +239,7 @@ public class PluginLoader {
      */
     public void unload(Plugin plugin) {
         rawUnload(plugin);
-        pluginMap.unrgisterAllCommands(plugin);
+        pluginMap.unregisterAllCommands(plugin);
         pluginMap.unregister(plugin, true);
     }
 

@@ -27,15 +27,15 @@ public abstract class ServerPlugin extends Plugin {
      *
      * @param client Details about the Player and other info.
      */
-    protected abstract void onClientDisconnectEvent(FinalClientTCP client)
-            throws Exception; //TODO
+    protected abstract void onClientDisconnect(FinalClientTCP client)
+            throws Exception;
 
     /**
      * Called when a client joins the server.
      *
      * @param client Details about the {@link FinalClientTCP} and other info.
      */
-    protected abstract void onClientJoinEvent(FinalClientTCP client)
-            throws Exception; //TODO
+    protected abstract void onClientJoin(FinalClientTCP client)
+            throws Exception;
 
 }

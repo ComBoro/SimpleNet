@@ -24,6 +24,8 @@ import net.comboro.SerializableMessage;
 import net.comboro.command.Command;
 import net.comboro.command.CommandMap;
 import net.comboro.command.CommandSender;
+import net.comboro.internet.tcp.ClientTCP;
+import net.comboro.internet.tcp.FinalClientTCP;
 
 import javax.swing.*;
 import java.util.*;
@@ -42,7 +44,7 @@ public class PluginMap {
 
     public void clear() {
         getPlugins().forEach(this::unregister);
-
+        getPlugins().forEach(this::unregisterAllCommands);
         synmap.clear();
     }
 
@@ -114,7 +116,7 @@ public class PluginMap {
      * @param sender The sender of the command
      * @param label  The label of the command
      * @param args   The arguments following the command
-     * @return if the command was used successfully
+     * @return If the command was used successfully
      * @see Plugin#onCommand(CommandSender, String, String[])
      */
     public boolean onCommand(CommandSender sender, String label, String[] args) {
@@ -138,12 +140,72 @@ public class PluginMap {
         }
     }
 
-    //TODO: Write it
+    /**
+     * Notifies all the plugins about a new client input and returns a result
+     *
+     * @param client  The client sending the input
+     * @param message The input send by the client
+     * @return If the input was used successfully
+     * @see Plugin#onClientInput(FinalClientTCP, SerializableMessage)
+     */
     public boolean onClientInput(Client client, SerializableMessage<?> message) {
         synchronized (synmap) {
-            //boolean success = false;
+            boolean success = false;
+            for (Plugin fp : synmap.keySet()) {
+                try {
+                    FinalClientTCP finalClientTCP = new FinalClientTCP((ClientTCP) client);
+                    boolean result = fp.onClientInput(finalClientTCP, message);
+                    if (result) {
+                        success = true;
+                        break;
+                    }
+                } catch (Exception exception) {
+                    success = false;
+                    SServer.debug(fp, " Error executing client input.");
+                }
+            }
+            return success;
         }
-        return false;
+    }
+
+    /**
+     * Notifies all plugins when a client leaves
+     *
+     * @param client The client who has just left
+     */
+    public void onClientDisconnect(Client client) {
+        synchronized (synmap) {
+            for (Plugin plugin : synmap.keySet()) {
+                if (plugin instanceof ServerPlugin) {
+                    ServerPlugin serverPlugin = (ServerPlugin) plugin;
+                    try {
+                        serverPlugin.onClientDisconnect(new FinalClientTCP((ClientTCP) client));
+                    } catch (Exception e) {
+                        continue;
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Notifies all plugins when a client connects
+     *
+     * @param client The client who has just connected
+     */
+    public void onClientJoin(Client client) {
+        synchronized (synmap) {
+            for (Plugin plugin : synmap.keySet()) {
+                if (plugin instanceof ServerPlugin) {
+                    ServerPlugin serverPlugin = (ServerPlugin) plugin;
+                    try {
+                        serverPlugin.onClientJoin(new FinalClientTCP((ClientTCP) client));
+                    } catch (Exception e) {
+                        continue;
+                    }
+                }
+            }
+        }
     }
 
     /**
@@ -226,17 +288,17 @@ public class PluginMap {
                     // tabs
                     SServer.getServerUI().getConsoleTabbedPane()
                             .remove((JComponent) object);
-                } else if (object instanceof String) { // Remove potencial
-                    // properties
+                } else if (object instanceof String) { // Remove potencial properties
                     String str = (String) object;
                     if (SServer.containsKey(str))
                         SServer.getProperties().remove(str);
                 }
             }
-            unrgisterAllCommands(plugin);
             // Remove from map
-            if (remove)
+            if (remove){
                 synmap.remove(plugin);
+                unregisterAllCommands(plugin);
+            }
 
             SServer.getServerUI().updatePluginsPane();
         }
@@ -266,7 +328,7 @@ public class PluginMap {
      * @param plugin The plugin to clear
      * @see CommandMap#unregister(Command)
      */
-    public void unrgisterAllCommands(Plugin plugin) {
+    public void unregisterAllCommands(Plugin plugin) {
         synchronized (synmap) {
 
             for (Object object : synmap.get(plugin)) {
@@ -277,7 +339,6 @@ public class PluginMap {
 
             }
             synmap.get(plugin).clear();
-            synmap.remove(plugin);
         }
     }
 
