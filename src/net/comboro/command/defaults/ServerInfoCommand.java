@@ -1,5 +1,8 @@
 package net.comboro.command.defaults;
 
+import net.comboro.command.Command;
+import net.comboro.command.CommandSender;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -7,9 +10,6 @@ import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
-
-import net.comboro.command.Command;
-import net.comboro.command.CommandSender;
 
 public class ServerInfoCommand extends Command {
 
