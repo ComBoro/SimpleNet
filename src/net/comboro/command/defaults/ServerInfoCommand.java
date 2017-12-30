@@ -22,7 +22,7 @@ public class ServerInfoCommand extends Command {
     public boolean execute(CommandSender sender, String[] args) {
         if (args.length == 2) {
             String hostString = args[0];
-            int port = 47247; // Default port
+            int port; // Default port
             try {
                 port = Integer.parseInt(args[1]);
                 if (port < 0 || port > 65536)

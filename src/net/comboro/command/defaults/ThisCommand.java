@@ -19,14 +19,12 @@ public class ThisCommand extends DefaultCommand {
         Runtime.getRuntime().gc();
     }
 
-    public static float usedMem() {
+    private static float usedMem() {
         float usedMemBytes = Runtime.getRuntime().totalMemory() - Runtime
                 .getRuntime().freeMemory();
         float usedMemMB = usedMemBytes / (1024 * 1024);
-        float usedMemMBrounded = BigDecimal.valueOf(usedMemMB)
+        return BigDecimal.valueOf(usedMemMB)
                 .setScale(4, BigDecimal.ROUND_HALF_UP).floatValue();
-        return usedMemMBrounded;
-
     }
 
     @Override

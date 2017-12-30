@@ -27,8 +27,12 @@ import net.comboro.plugin.Plugin;
 import net.comboro.plugin.PluginException;
 import net.comboro.plugin.PluginMap;
 
+import javax.swing.*;
+import javax.swing.text.*;
+import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.io.*;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -39,22 +43,14 @@ public class BetterUI extends JFrame {
     private static final AttributeSet timeAset = StyleContext
             .getDefaultStyleContext().addAttribute(SimpleAttributeSet.EMPTY,
                     StyleConstants.Foreground, Color.GRAY);
-    private static List<String> lastCommands = new ArrayList<>();
-    private JList<String> clientsList;
-    private JScrollPane clientsScrollPane;
-    private JTabbedPane clientsTabbedPane;
+    private static final List<String> lastCommands = new ArrayList<>();
     private JTextPane consoleTextPane;
     private JCheckBox debuggingCheckBox;
-    private JButton jButton1;
-    private JScrollPane jScrollPane1;
     private JTabbedPane consoleTabbedPane;
     private JTextField commandLine;
-    private JMenuBar menuBar;
     private JMenu plugin;
 
     private boolean debugging = false;
-
-    private Image logoBlue;
 
     private int UPpressed = 0;
 
@@ -81,7 +77,7 @@ public class BetterUI extends JFrame {
 
         SwingUtilities.invokeLater(new Runnable() {
 
-            AttributeSet aset = StyleContext.getDefaultStyleContext()
+            final AttributeSet aset = StyleContext.getDefaultStyleContext()
                     .addAttribute(SimpleAttributeSet.EMPTY,
                             StyleConstants.Foreground, c);
 
@@ -142,19 +138,19 @@ public class BetterUI extends JFrame {
             e.printStackTrace();
         }
 
-        logoBlue = Loader.loadImage("/res/logoNoBG25x25.png");
+        Image logoBlue = Loader.loadImage("/res/logoNoBG25x25.png");
         setIconImage(logoBlue);
 
-        clientsTabbedPane = new JTabbedPane();
-        clientsScrollPane = new JScrollPane();
-        clientsList = new JList<>();
+        JTabbedPane clientsTabbedPane = new JTabbedPane();
+        JScrollPane clientsScrollPane = new JScrollPane();
+        JList<String> clientsList = new JList<>();
         consoleTabbedPane = new JTabbedPane();
-        jScrollPane1 = new JScrollPane();
+        JScrollPane jScrollPane1 = new JScrollPane();
         consoleTextPane = new JTextPane();
-        jButton1 = new JButton();
+        JButton jButton1 = new JButton();
         commandLine = new JTextField();
         debuggingCheckBox = new JCheckBox();
-        menuBar = new JMenuBar();
+        JMenuBar menuBar = new JMenuBar();
 
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setTitle("Fusster");
@@ -173,21 +169,11 @@ public class BetterUI extends JFrame {
         consoleTabbedPane.addTab("Console", jScrollPane1);
 
         jButton1.setText("Execute");
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
-            @Override
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
-            }
-        });
+        jButton1.addActionListener(evt -> jButton1ActionPerformed(evt));
 
         debuggingCheckBox.setText("Debugging");
         debuggingCheckBox
-                .addActionListener(new java.awt.event.ActionListener() {
-                    @Override
-                    public void actionPerformed(java.awt.event.ActionEvent evt) {
-                        debuggingCheckBoxActionPerformed(evt);
-                    }
-                });
+                .addActionListener(evt -> debuggingCheckBoxActionPerformed(evt));
 
         commandLine.addKeyListener(new KeyAdapter() {
             @Override
@@ -215,9 +201,7 @@ public class BetterUI extends JFrame {
         thisMenu.add(internalRestart);
 
         JMenuItem exit = new JMenuItem("Exit");
-        exit.addActionListener(ae -> {
-            SServer.shutdown(true);
-        });
+        exit.addActionListener(ae -> SServer.shutdown(true));
         thisMenu.add(exit);
 
         menuBar.add(thisMenu);
@@ -287,15 +271,11 @@ public class BetterUI extends JFrame {
         JMenu help = new JMenu("Help");
 
         JMenuItem legal = new JMenuItem("Legal");
-        legal.addActionListener(ae -> {
-            openLicense();
-        });
+        legal.addActionListener(ae -> openLicense());
         help.add(legal);
 
         JMenuItem pluginsTab = new JMenuItem("Creating a plugin");
-        pluginsTab.addActionListener(ae -> {
-            openPluginsTab();
-        });
+        pluginsTab.addActionListener(ae -> openPluginsTab());
         help.add(pluginsTab);
 
         menuBar.add(help);
@@ -375,9 +355,7 @@ public class BetterUI extends JFrame {
 
         count -= defaultOnes;
 
-        if (count < 0)
-            return;
-        else {
+        if (count > 0) {
             // Clear
             for (int i = 0; i < count; i++)
                 plugin.remove(defaultOnes + i);
@@ -418,7 +396,7 @@ public class BetterUI extends JFrame {
         return debugging;
     }
 
-    public void setDebugging(boolean debugging) {
+    private void setDebugging(boolean debugging) {
         debuggingCheckBox.setSelected(debugging);
         SServer.setDebugging(debugging);
         if (debugging) {
@@ -480,7 +458,7 @@ public class BetterUI extends JFrame {
         String command = commandLine.getText().trim();
         CommandMap.dispatch(ConsoleCommandSender.getInstance(), command);
         clearCommandLine();
-        if (!(command == null || command.equals("")))
+        if (!command.equals(""))
             lastCommands.add(command);
     }
 
@@ -502,7 +480,7 @@ public class BetterUI extends JFrame {
                                                 .getResourceAsStream("/license.txt"));
                                 BufferedReader buff = new BufferedReader(isr);
 
-                                String line = "";
+                                String line;
 
                                 while ((line = buff.readLine()) != null) {
                                     doc.insertString(doc.getLength(), line
@@ -547,14 +525,15 @@ public class BetterUI extends JFrame {
                                                 .getResourceAsStream("/pluginsHelp/CreatingPlugins.html"));
                                 BufferedReader buff = new BufferedReader(isr);
 
-                                String text = "", line;
+                                StringBuilder text = new StringBuilder();
+                                String line;
 
                                 while ((line = buff.readLine()) != null) {
-                                    text += line;
+                                    text.append(line);
                                 }
 
                                 JEditorPane epane = new JEditorPane(
-                                        "text/html", text);
+                                        "text/html", text.toString());
                                 epane.setEditable(false);
                                 pluginHelpTabScrollPane = new JScrollPane(epane);
                             }

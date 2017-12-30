@@ -23,9 +23,9 @@ package net.comboro.command;
  */
 public abstract class Command {
     private final String name;
-    private String description;
-    private String usageMessage;
-    private boolean listable;
+    private final String description;
+    private final String usageMessage;
+    private final boolean listable;
 
     protected Command(String name, String description, String usageMessage) {
         this(name, description, usageMessage, true);

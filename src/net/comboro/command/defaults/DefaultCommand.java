@@ -4,7 +4,7 @@ import net.comboro.command.Command;
 
 public abstract class DefaultCommand extends Command {
 
-    public DefaultCommand(String name, String description, String usageMessage) {
+    DefaultCommand(String name, String description, String usageMessage) {
         super(name, description, usageMessage, true);
     }
 

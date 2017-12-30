@@ -21,6 +21,7 @@ package net.comboro.command;
 import net.comboro.SServer;
 import net.comboro.command.defaults.*;
 
+import java.awt.*;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -29,9 +30,9 @@ public class CommandMap {
 
     private static boolean commandRequested = false;
     private static String command = "";
-    private static Object lock = new Object();
+    private static final Object lock = new Object();
 
-    private static Map<String, Command> commands = new HashMap<String, Command>();
+    private static final Map<String, Command> commands = new HashMap<>();
 
     public static void addDefaults() {
         register("help", new HelpCommand());
@@ -46,7 +47,7 @@ public class CommandMap {
      * Executes the command and notifies all the plugins
      *
      * @param sender      The commandsender of the command. By default(
-     *                    {@link ConsoleCommandSender} and {@link Player})
+     *                    {@link ConsoleCommandSender} and {@link CommandSender})
      * @param commandLine The raw command line enetered
      */
     public static void dispatch(CommandSender sender, String commandLine) {
@@ -88,8 +89,7 @@ public class CommandMap {
      * @return The command if found else returns null
      */
     public static Command getCommand(String name) {
-        Command target = commands.get(name.toLowerCase());
-        return target;
+        return commands.get(name.toLowerCase());
     }
 
     public static Map<String, Command> getCommands() {
@@ -134,15 +134,14 @@ public class CommandMap {
             return;
         String cmd = null;
 
-        valueSearch:
         for (Map.Entry<String, Command> entry : commands.entrySet()) {
             if (entry.getValue().equals(command)) {
                 cmd = entry.getKey();
-                break valueSearch;
+                break;
             }
         }
 
-        if (cmd != null)
+        if (cmd == null)
             return;
         commands.remove(cmd);
     }

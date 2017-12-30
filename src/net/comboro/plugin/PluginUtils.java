@@ -22,7 +22,7 @@ import net.comboro.Client;
 
 import java.util.Collection;
 
-public class PluginUtils {
+class PluginUtils {
 
     public static Collection<Client> getAllClients() {
         //TODO: Write some code

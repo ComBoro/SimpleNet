@@ -23,10 +23,10 @@ import net.comboro.SServer;
 import java.awt.*;
 import java.io.*;
 
-public class ConsoleOutputStream extends OutputStream {
+class ConsoleOutputStream extends OutputStream {
 
     private final Color color;
-    private PipedOutputStream out = new PipedOutputStream();
+    private final PipedOutputStream out = new PipedOutputStream();
     private Reader reader;
 
     public ConsoleOutputStream(Color color) throws IOException {

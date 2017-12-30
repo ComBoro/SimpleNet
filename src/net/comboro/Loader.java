@@ -18,6 +18,7 @@
 
 package net.comboro;
 
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 
@@ -26,7 +27,7 @@ import java.io.IOException;
  */
 public class Loader {
 
-    public static final String path_bin = System.getProperty("user.dir");
+    private static final String path_bin = System.getProperty("user.dir");
 
 
     /**

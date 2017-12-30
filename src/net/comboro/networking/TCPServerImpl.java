@@ -29,7 +29,7 @@ import static net.comboro.SServer.*;
 
 public class TCPServerImpl extends ServerTCP {
 
-    final ServerAdapter<ClientTCP> SERVER_ADAPTER = new ServerAdapter<ClientTCP>() {
+    private final ServerAdapter<ClientTCP> SERVER_ADAPTER = new ServerAdapter<>() {
         @Override
         public void onClientConnect(ClientTCP client) {
             append("New client connected. ");

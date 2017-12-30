@@ -22,7 +22,7 @@ import net.comboro.SServer;
 
 public class ConsoleCommandSender implements CommandSender {
 
-    private static ConsoleCommandSender sender = new ConsoleCommandSender();
+    private static final ConsoleCommandSender sender = new ConsoleCommandSender();
 
     private ConsoleCommandSender() {
     }

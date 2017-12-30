@@ -31,9 +31,9 @@ import java.util.jar.JarFile;
 
 public class PluginLoader {
 
-    private File directory;
-    private PluginMap pluginMap;
-    private Map<File, Boolean> jars = new HashMap<File, Boolean>();
+    private final File directory;
+    private final PluginMap pluginMap;
+    private final Map<File, Boolean> jars = new HashMap<>();
 
     /**
      * Creates a PluginLoader and lists all the jars but does NOT load them
@@ -109,14 +109,10 @@ public class PluginLoader {
      * Lists all the files ending in .jar
      */
     private File[] listJars(File directory) {
-        File[] files = directory.listFiles(new FileFilter() {
-            @Override
-            public boolean accept(File pathname) {
-                return !pathname.isDirectory() && pathname.canRead()
-                        && getFileExtension(pathname).equals("jar");
-            }
-        });
+        File[] files = directory.listFiles(pathname -> !pathname.isDirectory() && pathname.canRead()
+                && getFileExtension(pathname).equals("jar"));
 
+        assert files != null;
         for (File file : files)
             if (!this.jars.containsKey(file))
                 this.jars.put(file, false);
@@ -124,13 +120,13 @@ public class PluginLoader {
         return files;
     }
 
-    @SuppressWarnings("resource")
     /**
      * Gets a file and tries to load it into the runtime
      * @param file The .jar file to load
      * @return The loaded plugin
      * @throws PluginException if the file is not a plugin or does not contain the essential elements to be one
      */
+    @SuppressWarnings("resource")
     public Plugin load(File file) throws PluginException {
         if (!file.exists() || file.isDirectory())
             throw new PluginException("File not found", file.getName());
@@ -186,7 +182,7 @@ public class PluginLoader {
             return;
         listJars(directory);
         for (File file : jars.keySet()) {
-            if (!jars.get(file).booleanValue())
+            if (!jars.get(file))
                 try {
                     load(file);
                 } catch (PluginException e) {
@@ -198,10 +194,7 @@ public class PluginLoader {
     /**
      * @param plugin The {@link Plugin} to unload
      * @see #unload(Plugin)
-     * @deprecated Should never be used outside of
-     * {@link #unload(Plugin)}
      */
-    @Deprecated
     private void rawUnload(Plugin plugin) {
         if (plugin == null)
             return;
@@ -214,7 +207,7 @@ public class PluginLoader {
         }
 
         File file = plugin.getFile();
-        if (jars.containsKey(file) && jars.get(file).booleanValue())
+        if (jars.containsKey(file) && jars.get(file))
             jars.put(file, false);
 
     }
@@ -255,7 +248,7 @@ public class PluginLoader {
      * Unloads all the plugins from the runtime and clears the list
      */
     public void unloadAll() {
-        pluginMap.getPlugins().forEach(pl -> rawUnload(pl));
+        pluginMap.getPlugins().forEach(this::rawUnload);
         pluginMap.clear();
         jars.clear();
     }

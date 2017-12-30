@@ -25,9 +25,12 @@ import net.comboro.command.Command;
 import net.comboro.command.CommandMap;
 import net.comboro.command.CommandSender;
 
+import javax.swing.*;
+import java.util.*;
+
 public class PluginMap {
 
-    private Map<Plugin, Set<Object>> synmap;
+    private final Map<Plugin, Set<Object>> synmap;
 
     /**
      * Generates an empty synchronised map.
@@ -127,7 +130,7 @@ public class PluginMap {
                 } catch (Exception exception) {
                     success = false;
                     SServer.debug(fp, " Error executing command with label: "
-                            + label + ", args: " + args.toString()
+                            + label + ", args: " + Arrays.toString(args)
                             + ". Message: " + exception.getMessage());
                 }
             }
@@ -162,7 +165,7 @@ public class PluginMap {
             if (pluginNames.contains(toRegister.getDescription().getName()))
                 return;
 
-            synmap.put(toRegister, new HashSet<Object>());
+            synmap.put(toRegister, new HashSet<>());
 
             SServer.getServerUI().updatePluginsPane();
         }
@@ -204,7 +207,7 @@ public class PluginMap {
      *
      * @param plugin The plugin to unregister
      */
-    public void unregister(Plugin plugin) {
+    private void unregister(Plugin plugin) {
         unregister(plugin, false);
     }
 

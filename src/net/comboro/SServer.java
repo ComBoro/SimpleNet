@@ -37,17 +37,17 @@ public final class SServer {
 
     public static final Color error = new Color(178, 34, 34);
     public static final String BAN_MESSEGE = "Connection establishment prohibited.";
-    public static TCPServerImpl tcp_server;
+    private static final Properties properties = new Properties();
     private static BetterUI betterUI;
     private static ServerInfo serverInfo;
     private static PluginLoader pluginLoader;
     private static PluginMap pluginMap;
     private static boolean offline = false;
     private static String publicIP = "127.0.0.1";
-    public static String localIP = new String(publicIP);
+    private static TCPServerImpl tcp_server;
     private static int port;
     private static Color defaultColour = Color.BLACK;
-    private static Properties properties = new Properties();
+    private static String localIP = publicIP;
 
     public static void append(String append) {
         if (betterUI != null)
@@ -213,7 +213,7 @@ public final class SServer {
      *
      * @param offline set the server's offline state
      */
-    public static void setOffline(boolean offline) {
+    private static void setOffline(boolean offline) {
         SServer.offline = offline;
     }
 

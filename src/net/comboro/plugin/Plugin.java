@@ -24,12 +24,15 @@ import net.comboro.command.Command;
 import net.comboro.command.CommandSender;
 import net.comboro.internet.tcp.FinalClientTCP;
 
+import javax.swing.*;
+import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
+import java.util.Collections;
 
 /**
  * An abstract class used to represent any non-server file that is loaded into
@@ -37,8 +40,8 @@ import java.util.Arrays;
  */
 public abstract class Plugin {
 
-    protected Path defaultConfigPath;
-    protected PluginDescription description;
+    private Path defaultConfigPath;
+    private PluginDescription description;
     private File file, dataFolder, defaultConfig;
     private ClassLoader classLoader;
 
@@ -99,8 +102,8 @@ public abstract class Plugin {
         return classLoader;
     }
 
-    protected final void initialize(PluginDescription description, File file, File dataFolder,
-                                    File defaultConfig, ClassLoader classLoader) {
+    final void initialize(PluginDescription description, File file, File dataFolder,
+                          File defaultConfig, ClassLoader classLoader) {
         this.classLoader = classLoader;
         this.description = description;
         this.file = file;
@@ -245,7 +248,7 @@ public abstract class Plugin {
      */
     protected final void writeDefaultConfig(String text)
             throws NullPointerException, IOException {
-        Files.write(Paths.get(defaultConfig.toURI()), Arrays.asList(text),
+        Files.write(Paths.get(defaultConfig.toURI()), Collections.singletonList(text),
                 Charset.forName("UTF-8"), StandardOpenOption.APPEND);
     }
 

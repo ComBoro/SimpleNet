@@ -33,7 +33,7 @@ public abstract class ServerPlugin extends Plugin {
     /**
      * Called when a client joins the server.
      *
-     * @param client Details about the {@link Client} and other info.
+     * @param client Details about the {@link FinalClientTCP} and other info.
      */
     protected abstract void onClientJoinEvent(FinalClientTCP client)
             throws Exception; //TODO

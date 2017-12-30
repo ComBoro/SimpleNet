@@ -18,6 +18,7 @@
 
 package net.comboro;
 
+import java.io.*;
 import java.net.InetAddress;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -31,7 +32,7 @@ public class ServerInfo {
     private int port;
     private String name;
     private boolean debugging;
-    private Vector<String> banList = new Vector<String>();
+    private final Vector<String> banList = new Vector<>();
 
     private File banListFile;
 
@@ -130,7 +131,7 @@ public class ServerInfo {
      * cases it may create a default one
      */
 
-    public void loadLogger() {
+    private void loadLogger() {
         try {
             File logs = Loader.loadDirectory("logs");
             File currentLog = new File(logs, System.currentTimeMillis()
@@ -157,6 +158,7 @@ public class ServerInfo {
         if (!result) {
             SServer.error("Invalid config");
             createDefault(writer);
+            assert writer != null;
             writer.close();
             reader = getReader(serverConfig);
             readConfig(reader);
@@ -166,6 +168,7 @@ public class ServerInfo {
 
         // Close reader && writer
         closeRedaer(reader);
+        assert writer != null;
         writer.close();
     }
 
@@ -180,9 +183,9 @@ public class ServerInfo {
             if (!banListReader.ready())
                 return;
 
-            String line = "";
+            String line;
             // Use set to ignore duplicates
-            Set<String> temp = new HashSet<String>();
+            Set<String> temp = new HashSet<>();
             while ((line = banListReader.readLine()) != null) {
                 temp.add(line);
             }
@@ -246,18 +249,19 @@ public class ServerInfo {
     /**
      * Updates the file of prevented users by clearing it and rewriting it.
      */
-    public void updateBanListFile() {
+    private void updateBanListFile() {
         try {
             new FileWriter(banListFile).close();
 
             PrintWriter writer = getWriter(banListFile);
 
-            Set<String> set = new HashSet<String>(banList);
+            Set<String> set = new HashSet<>(banList);
             Iterator<String> it = set.iterator();
             while (it.hasNext())
                 writer.println(it.next());
             set.clear();
 
+            assert writer != null;
             writer.close();
         } catch (IOException e) {
             e.printStackTrace();

@@ -30,7 +30,7 @@ import java.net.URLClassLoader;
  * @author Admin
  * @see Plugin
  */
-public class PluginClassLoader extends URLClassLoader {
+class PluginClassLoader extends URLClassLoader {
 
     private PluginDescription description;
     private File file, dataFolder, defaultConfig;
@@ -46,7 +46,7 @@ public class PluginClassLoader extends URLClassLoader {
         this.dataFolder = dataFolder;
 
         try {
-            Class<?> jarClass = null;
+            Class<?> jarClass;
             try {
                 jarClass = Class.forName(description.getMain(), true, this);
             } catch (ClassNotFoundException ex) {
@@ -54,7 +54,7 @@ public class PluginClassLoader extends URLClassLoader {
                         + description.getMain() + "'", description.getName());
             }
 
-            Class<? extends Plugin> pluginClass = null;
+            Class<? extends Plugin> pluginClass;
             try {
                 pluginClass = jarClass.asSubclass(Plugin.class);
             } catch (ClassCastException ex) {
@@ -65,9 +65,7 @@ public class PluginClassLoader extends URLClassLoader {
             }
 
             plugin = pluginClass.newInstance();
-        } catch (IllegalAccessException ex) {
-            throw new PluginException(ex.getMessage(), description.getName());
-        } catch (InstantiationException ex) {
+        } catch (IllegalAccessException | InstantiationException ex) {
             throw new PluginException(ex.getMessage(), description.getName());
         }
     }

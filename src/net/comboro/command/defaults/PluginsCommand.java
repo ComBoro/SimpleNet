@@ -46,9 +46,9 @@ public class PluginsCommand extends DefaultCommand {
                 return false;
             }
 
-            String string = new String();
+            StringBuilder string = new StringBuilder();
             for (Plugin plugin : SServer.getPluginMap().getPlugins())
-                string += ", " + plugin.getDescription().getName();
+                string.append(", ").append(plugin.getDescription().getName());
             sender.sendMessage("Available plugins [" + plugins + "] : "
                     + string.substring(2, string.length()));
 
