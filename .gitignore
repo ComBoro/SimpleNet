@@ -1,4 +1,6 @@
 *.log
+MANIFEST.mf
+/src/META-INF
 /.idea
 /logs
 /out
