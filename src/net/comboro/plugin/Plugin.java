@@ -26,6 +26,7 @@ import net.comboro.internet.tcp.FinalClientTCP;
 
 import javax.swing.*;
 import java.io.*;
+import java.net.URLClassLoader;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -43,7 +44,7 @@ public abstract class Plugin {
     private Path defaultConfigPath;
     private PluginDescription description;
     private File file, dataFolder, defaultConfig;
-    private ClassLoader classLoader;
+    private URLClassLoader classLoader;
 
     public Plugin() {
         final ClassLoader classLoader = this.getClass().getClassLoader();
@@ -98,12 +99,12 @@ public abstract class Plugin {
      * correctly this must return an instance of
      * {@link PluginClassLoader}
      */
-    public final ClassLoader getLoader() {
+    public final URLClassLoader getLoader() {
         return classLoader;
     }
 
     final void initialize(PluginDescription description, File file, File dataFolder,
-                          File defaultConfig, ClassLoader classLoader) {
+                          File defaultConfig, URLClassLoader classLoader) {
         this.classLoader = classLoader;
         this.description = description;
         this.file = file;
@@ -205,7 +206,7 @@ public abstract class Plugin {
      * @param key   The key that represents a command label
      * @param value The value linked with the key
      */
-    protected final void registerPropertie(String key, String value) {
+    protected final void registerProperty(String key, String value) {
         SServer.getProperties().put(key, value);
         SServer.getPluginMap().link(this, key);
     }

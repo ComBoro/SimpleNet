@@ -62,6 +62,13 @@ public class PluginDescription {
             }
         } catch (IOException e) {
             throw new PluginException(e.getMessage(), name, e);
+        } finally {
+            try {
+                buffredReader.close();
+                reader.close();
+            } catch (IOException e) {
+
+            }
         }
 
         if (!isValid())

@@ -34,12 +34,14 @@ public class TCPServerImpl extends ServerTCP {
         @Override
         public void onClientConnect(ClientTCP client) {
             append("New client connected. ");
-            SServer.getPluginMap().onClientJoin(client);
+            SServer.getPluginMap().onClientConnect(client);
         }
 
         @Override
         public void onClientInput(ClientTCP client,
                                   SerializableMessage message) {
+            if (message.getData() instanceof String)
+                SServer.debug((String) message.getData());
             SServer.getPluginMap().onClientInput(client, message);
         }
 

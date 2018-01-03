@@ -84,6 +84,7 @@ public class PluginLoader {
 
             PluginDescription description = new PluginDescription(stream);
 
+            stream.close();
             jarFile.close();
 
             return description;
@@ -111,7 +112,6 @@ public class PluginLoader {
         File[] files = directory.listFiles(pathname -> !pathname.isDirectory() && pathname.canRead()
                 && getFileExtension(pathname).equals("jar"));
 
-        assert files != null;
         for (File file : files)
             if (!this.jars.containsKey(file))
                 this.jars.put(file, false);
@@ -125,7 +125,6 @@ public class PluginLoader {
      * @return The loaded plugin
      * @throws PluginException if the file is not a plugin or does not contain the essential elements to be one
      */
-    @SuppressWarnings("resource")
     public Plugin load(File file) throws PluginException {
         if (!file.exists() || file.isDirectory())
             throw new PluginException("File not found", file.getName());
@@ -199,6 +198,7 @@ public class PluginLoader {
             return;
         try {
             plugin.onDisable();
+            plugin.getLoader().close();
         } catch (Exception e) {
             SServer.debug("Error disabling plugin "
                     + plugin.getDescription().getName()

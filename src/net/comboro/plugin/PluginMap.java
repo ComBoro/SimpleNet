@@ -193,13 +193,13 @@ public class PluginMap {
      *
      * @param client The client who has just connected
      */
-    public void onClientJoin(Client client) {
+    public void onClientConnect(Client client) {
         synchronized (synmap) {
             for (Plugin plugin : synmap.keySet()) {
                 if (plugin instanceof ServerPlugin) {
                     ServerPlugin serverPlugin = (ServerPlugin) plugin;
                     try {
-                        serverPlugin.onClientJoin(new FinalClientTCP((ClientTCP) client));
+                        serverPlugin.onClientConnect(new FinalClientTCP((ClientTCP) client));
                     } catch (Exception e) {
                         continue;
                     }

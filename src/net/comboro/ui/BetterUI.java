@@ -274,10 +274,6 @@ public class BetterUI extends JFrame {
         legal.addActionListener(ae -> openLicense());
         help.add(legal);
 
-        JMenuItem pluginsTab = new JMenuItem("Creating a plugin");
-        pluginsTab.addActionListener(ae -> openPluginsTab());
-        help.add(pluginsTab);
-
         menuBar.add(help);
 
         setJMenuBar(menuBar);
@@ -507,44 +503,6 @@ public class BetterUI extends JFrame {
 
                         licenseOpened = !licenseOpened;
 
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                });
-    }
-
-    private void openPluginsTab() {
-        SwingUtilities
-                .invokeLater(() -> {
-                    try {
-                        if (!pluginsTabOpened) {
-                            if (pluginHelpTabScrollPane == null) {
-
-                                InputStreamReader isr = new InputStreamReader(
-                                        Class.class
-                                                .getResourceAsStream("/pluginsHelp/CreatingPlugins.html"));
-                                BufferedReader buff = new BufferedReader(isr);
-
-                                StringBuilder text = new StringBuilder();
-                                String line;
-
-                                while ((line = buff.readLine()) != null) {
-                                    text.append(line);
-                                }
-
-                                JEditorPane epane = new JEditorPane(
-                                        "text/html", text.toString());
-                                epane.setEditable(false);
-                                pluginHelpTabScrollPane = new JScrollPane(epane);
-                            }
-
-                            consoleTabbedPane.add("Creating a plugin",
-                                    pluginHelpTabScrollPane);
-                        } else {
-                            consoleTabbedPane.remove(pluginHelpTabScrollPane);
-                        }
-
-                        pluginsTabOpened = !pluginsTabOpened;
                     } catch (Exception e) {
                         e.printStackTrace();
                     }

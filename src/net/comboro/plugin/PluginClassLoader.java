@@ -19,6 +19,7 @@
 package net.comboro.plugin;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -60,11 +61,12 @@ class PluginClassLoader extends URLClassLoader {
             } catch (ClassCastException ex) {
                 throw new PluginException("Main class `"
                         + description.getMain()
-                        + "' does not extend FussterPlugin",
+                        + "' does not extend Plugin",
                         description.getName());
             }
 
             plugin = pluginClass.newInstance();
+
         } catch (IllegalAccessException | InstantiationException ex) {
             throw new PluginException(ex.getMessage(), description.getName());
         }

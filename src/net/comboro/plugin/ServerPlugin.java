@@ -35,7 +35,7 @@ public abstract class ServerPlugin extends Plugin {
      *
      * @param client Details about the {@link FinalClientTCP} and other info.
      */
-    protected abstract void onClientJoin(FinalClientTCP client)
+    protected abstract void onClientConnect(FinalClientTCP client)
             throws Exception;
 
 }
