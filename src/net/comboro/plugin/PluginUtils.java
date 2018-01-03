@@ -19,13 +19,13 @@
 package net.comboro.plugin;
 
 import net.comboro.Client;
+import net.comboro.SServer;
 
 import java.util.Collection;
 
 class PluginUtils {
 
     public static Collection<Client> getAllClients() {
-        //TODO: Write some code
         return null;
     }
 
