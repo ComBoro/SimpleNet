@@ -33,7 +33,6 @@ public class TCPServerImpl extends ServerTCP {
     private final ServerAdapter<ClientTCP> SERVER_ADAPTER = new ServerAdapter<ClientTCP>() {
         @Override
         public void onClientConnect(ClientTCP client) {
-            append("New client connected. ");
             SServer.getPluginMap().onClientConnect(client);
         }
 
@@ -61,7 +60,6 @@ public class TCPServerImpl extends ServerTCP {
 
         @Override
         public void onClientDisconnect(ClientTCP client) {
-            append("Client disconnected");
             SServer.getPluginMap().onClientDisconnect(client);
         }
     };

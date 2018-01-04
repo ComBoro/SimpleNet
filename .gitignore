@@ -5,3 +5,5 @@ MANIFEST.mf
 /logs
 /out
 /plugins
+server.info
+banlist.dat
