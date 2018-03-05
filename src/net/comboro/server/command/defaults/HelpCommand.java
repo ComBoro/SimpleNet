@@ -53,7 +53,7 @@ public class HelpCommand extends DefaultCommand {
             sender.sendMessage(printCommand(command));
             return true;
         } else {
-            Server.append("Listing all hidden & unhidden commands");
+            Server.append("Listing all commands");
             sender.sendMessage("List of Commands: ");
             for (int i = 0; i < CommandMap.getCommands().values().size(); i++) {
                 Command command = (Command) CommandMap.getCommands().values()
