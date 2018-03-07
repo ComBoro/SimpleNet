@@ -44,6 +44,10 @@ public final class Server {
         betterUI.append(append,color,endLine);
     }
 
+    public static void append(String append, Color color, boolean bold, boolean endLine){
+        betterUI.append(append, color, bold, endLine);
+    }
+
     /**
      * Prevent an {@link InetAddress} from connecting to the server
      *
@@ -112,6 +116,12 @@ public final class Server {
      */
     public static String getName() {
         return serverInfo.getName();
+    }
+
+    public static void setName(String name){
+        serverInfo.setName(name);
+        append("Server name chanced to '" + name  +"'", Color.red,true,true);
+        betterUI.setTitle(name);
     }
 
     /**

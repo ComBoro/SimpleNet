@@ -68,7 +68,7 @@ public class ServerInfo {
      */
     private void createDefault(PrintWriter writer) {
         writer.println("// Default generated Server Configuration File");
-        writer.println("Name: A SimpleNet Server");
+        writer.println("Name: SimpleNet Server");
         writer.println("Port: 47247");
         writer.println("Debugging: false");
     }
@@ -79,6 +79,10 @@ public class ServerInfo {
 
     public String getName() {
         return name;
+    }
+
+    public void setName(String name){
+        this.name = name;
     }
 
     public int getPort() {

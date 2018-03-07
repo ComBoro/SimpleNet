@@ -80,10 +80,15 @@ public class BetterUI extends JFrame {
         this.append(str,c,false,true);
     }
 
+    public void append(final String str, Color color, boolean endLine) {
+        this.append(str,color,false,endLine);
+    }
+
+
     public void append(final String str, Color color, boolean bold, boolean endLine) {
         SimpleAttributeSet attributeSet = new SimpleAttributeSet();
         StyleConstants.setForeground(attributeSet, color);
-        StyleConstants.setBold(attributeSet, true);
+        StyleConstants.setBold(attributeSet, bold);
         append(str,attributeSet,endLine);
     }
 

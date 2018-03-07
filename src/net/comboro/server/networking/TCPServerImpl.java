@@ -24,10 +24,15 @@ import net.comboro.SerializableMessage;
 import net.comboro.Server.ServerListener.ServerAdapter;
 import net.comboro.internet.tcp.ClientTCP;
 import net.comboro.internet.tcp.ServerTCP;
+import net.comboro.server.command.CommandMap;
 
 import java.awt.*;
+import java.io.IOException;
 import java.lang.reflect.Field;
+import java.net.BindException;
+import java.net.InetAddress;
 import java.net.Socket;
+import java.net.UnknownHostException;
 
 import static net.comboro.server.Server.*;
 
@@ -56,15 +61,30 @@ public class TCPServerImpl extends ServerTCP {
             public void onServerStart() {
                 setDefaultColour(Color.RED);
 
-                append("Server successfully started on port: " + port);
+                append("Starting server '" + Server.getName() + "'");
+                append("Port: " + port);
                 append("Secure? " + TCPServerImpl.this.isSecure());
+                try {
+                    append("Internal IP: " + InetAddress.getLocalHost().getHostAddress());
+                } catch (UnknownHostException e) {}
                 resetDefaultColour();
             }
 
             @Override
             public void onServerStartError(Exception e) {
                 error("Error starting server");
-                e.printStackTrace(System.err);
+                if(e instanceof BindException){
+                    append("Port taken, please input new one!",Color.RED, true, true);
+                    String cmd = CommandMap.nextCommand();
+                    try{
+                        int port = Integer.parseInt(cmd);
+                        setPort(port < 0 || port > 65_535 ? 0 : port);
+                    } catch (NumberFormatException nfe){
+                        setPort(0);
+                    }
+                    Application.clearConsole();
+                    startServer();
+                }
             }
 
             @Override
@@ -72,8 +92,14 @@ public class TCPServerImpl extends ServerTCP {
                 Application.getPluginMap().onClientDisconnect(client);
                 append("Client disconnected", Color.RED);
             }
+
         };
         addLister(SERVER_ADAPTER);
     }
 
+    @Override
+    protected void start() throws IOException {
+        append( getName() + " successfully started on port " + getPort(),Color.DARK_GRAY,true,true);
+        super.start();
+    }
 }

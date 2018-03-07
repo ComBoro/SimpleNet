@@ -70,7 +70,11 @@ public class ThisCommand extends DefaultCommand {
                 clear();
                 break;
             case "name":
-                sender.sendMessage("Server name: " + Server.getName());
+                if(argsLengh == 1)
+                    sender.sendMessage("Server name: " + Server.getName());
+                else{
+                    Server.setName(args[1]);
+                }
                 break;
             case "mem":
                 sender.sendMessage("Used memory: " + usedMem() + " MB in "
