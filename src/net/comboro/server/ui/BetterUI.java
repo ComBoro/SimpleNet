@@ -73,7 +73,7 @@ public class BetterUI extends JFrame {
         initComponents();
 
         Runtime.getRuntime().addShutdownHook(
-                new Thread(() -> Application.shutdown(false)));
+                new Thread(() -> Application.shutdown()));
     }
 
     public void append(final String str, final Color c){
@@ -238,7 +238,7 @@ public class BetterUI extends JFrame {
         thisMenu.add(internalRestart);
 
         JMenuItem exit = new JMenuItem("Exit");
-        exit.addActionListener(ae -> Application.shutdown(true));
+        exit.addActionListener(ae -> Application.shutdown());
         thisMenu.add(exit);
 
         menuBar.add(thisMenu);

@@ -33,12 +33,9 @@ public class UnbanCommand extends DefaultCommand {
         if (args.length == 0)
             return false;
         String ip = args[0].trim();
-        boolean status = Server.unban(ip);
-        if (status)
-            sender.sendMessage("Successfully unbaned " + ip + ".");
-        else
-            sender.sendMessage("Failed to unban " + ip + ".");
-        return status;
+        Server.unban(ip);
+        sender.sendMessage("Unbanned " + ip + ".");
+        return true;
     }
 
 }

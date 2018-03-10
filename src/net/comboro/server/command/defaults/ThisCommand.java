@@ -72,8 +72,20 @@ public class ThisCommand extends DefaultCommand {
             case "name":
                 if(argsLengh == 1)
                     sender.sendMessage("Server name: " + Server.getName());
-                else{
+                else
                     Server.setName(args[1]);
+                break;
+            case "port":
+                if(argsLengh == 1)
+                    sender.sendMessage("Server port: " + Server.getPort());
+                else {
+                    try{
+                        int port = Integer.parseInt(args[1]);
+                        if(port < 0 || port > 65_535) throw new NumberFormatException();
+                        Server.setPort(port);
+                    }catch (NumberFormatException nfe){
+                        sender.sendMessage("Invalid port. Nothing was changed");
+                    }
                 }
                 break;
             case "mem":

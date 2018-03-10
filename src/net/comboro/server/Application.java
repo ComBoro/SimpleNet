@@ -1,6 +1,7 @@
 package net.comboro.server;
 
 import net.comboro.server.command.CommandMap;
+import net.comboro.server.files.ExternalFile;
 import net.comboro.server.networking.TCPServerImpl;
 import net.comboro.server.plugin.PluginLoader;
 import net.comboro.server.plugin.PluginMap;
@@ -9,12 +10,12 @@ import net.comboro.server.ui.BetterUI;
 import javax.swing.*;
 import java.awt.*;
 import java.util.Properties;
-import java.util.Vector;
+
+import static net.comboro.server.files.ExternalFile.*;
 
 public final class Application {
 
     static BetterUI betterUI;
-    static ServerInfo serverInfo;
     private static PluginLoader pluginLoader;
     private static PluginMap pluginMap;
     static boolean offline = false;
@@ -31,10 +32,10 @@ public final class Application {
         // Load GUI
         betterUI = new BetterUI();
         // Load the server configuration
-        serverInfo = new ServerInfo();
+        betterUI.setTitle(serverInfoFile.getName());
 
         // Start server
-        tcp_server = new TCPServerImpl(serverInfo.getPort());
+        tcp_server = new TCPServerImpl(serverInfoFile.getPort());
         tcp_server.startServer();
 
         // Basic auto response
@@ -48,31 +49,42 @@ public final class Application {
         pluginLoader = new PluginLoader(pluginMap, Loader.loadDirectory("plugins"));
         // Load all plugins
         pluginLoader.loadAll();
+
+//        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+//            serverInfo.saveConfig();
+//            pluginMap.clear();
+//            pluginLoader.unloadAll();
+//            tcp_server.stopServer();
+//            betterUI.dispose();
+//            System.exit(0);
+//        }));
     }
 
     private static void initProperties() {
-        properties.setProperty("name", serverInfo.getName());
         properties.setProperty("version", "1.0");
+        properties.setProperty("name", serverInfoFile.getName());
     }
 
     /**
      * Shuts down the server and disconnects all players sending them the server
      * close message.
      *
-     * @param halt if the FussterServer proccess should be terminated
      */
-    public static void shutdown(boolean halt) {
-        serverInfo.logger.close();
+    public static void shutdown() {
         properties.clear();
+        tcp_server.stopServer();
+        if(pluginMap!=null)
+            pluginMap.clear();
         if (pluginLoader != null)
             getPluginLoader().unloadAll();
-        if (halt)
-            Runtime.getRuntime().halt(0);
+
+        closeStatic();
+        Runtime.getRuntime().halt(0);
+
     }
 
     public static void log(String string) {
-        if (serverInfo.logger != null)
-            serverInfo.logger.print(string);
+        logFile.log(string);
     }
 
     /**
@@ -102,7 +114,7 @@ public final class Application {
      * @return the server debugging state
      */
     public static boolean isDebugging() {
-        return serverInfo.isDebugging();
+        return serverInfoFile.isDebugging();
     }
 
     /**
@@ -111,7 +123,7 @@ public final class Application {
      * @param debugging the new debugging state
      */
     public static void setDebugging(boolean debugging) {
-        serverInfo.setDebugging(debugging);
+        serverInfoFile.setDebugging(debugging);
     }
 
     public static void updatePluginsPane(){

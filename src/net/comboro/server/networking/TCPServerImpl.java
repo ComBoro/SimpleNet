@@ -18,6 +18,7 @@
 
 package net.comboro.server.networking;
 
+import net.comboro.encryption.rsa.RSAInformation;
 import net.comboro.server.Application;
 import net.comboro.server.Server;
 import net.comboro.SerializableMessage;
@@ -64,6 +65,9 @@ public class TCPServerImpl extends ServerTCP {
                 append("Starting server '" + Server.getName() + "'");
                 append("Port: " + port);
                 append("Secure? " + TCPServerImpl.this.isSecure());
+                RSAInformation information = TCPServerImpl.this.rsa.getInformation();
+                append("Modulus: " + information.getModulus());
+                append("Public key: " + information.getPublicKey());
                 try {
                     append("Internal IP: " + InetAddress.getLocalHost().getHostAddress());
                 } catch (UnknownHostException e) {}

@@ -18,16 +18,15 @@
 
 package net.comboro.server;
 
-import net.comboro.internet.tcp.FinalClientTCP;
+import net.comboro.server.files.ExternalFile;
 import net.comboro.server.plugin.Plugin;
 
 import java.awt.*;
 import java.net.InetAddress;
-import java.util.List;
-import java.util.ArrayList;
 import java.util.Vector;
 
 import static net.comboro.server.Application.*;
+import static net.comboro.server.files.ExternalFile.*;
 
 public final class Server {
 
@@ -54,7 +53,7 @@ public final class Server {
      * @param string the String representing an {@link InetAddress}
      */
     public static void ban(String string) {
-        serverInfo.ban(string);
+        banListFile.ban(string);
     }
 
     /**
@@ -108,18 +107,18 @@ public final class Server {
      * banned Internet Protocols
      */
     public static Vector<String> getBanList() {
-        return serverInfo.getBanList();
+        return banListFile.getBanList();
     }
 
     /**
      * @return The name of the server
      */
     public static String getName() {
-        return serverInfo.getName();
+        return serverInfoFile.getName();
     }
 
     public static void setName(String name){
-        serverInfo.setName(name);
+        serverInfoFile.changeName(name);
         append("Server name chanced to '" + name  +"'", Color.red,true,true);
         betterUI.setTitle(name);
     }
@@ -129,6 +128,10 @@ public final class Server {
      */
     public static int getPort() {
         return tcp_server.getPort();
+    }
+
+    public static void setPort(int port){
+        serverInfoFile.changePort(port);
     }
 
     /**
@@ -163,8 +166,8 @@ public final class Server {
      * @param string the {@link InetAddress} as String
      * @return if the unban was successful
      */
-    public static boolean unban(String string) {
-        return serverInfo.unban(string);
+    public static void unban(String string) {
+        banListFile.unban(string);
     }
 
     public static void resetDefaultColour() {
