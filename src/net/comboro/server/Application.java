@@ -1,7 +1,6 @@
 package net.comboro.server;
 
 import net.comboro.server.command.CommandMap;
-import net.comboro.server.files.ExternalFile;
 import net.comboro.server.networking.TCPServerImpl;
 import net.comboro.server.plugin.PluginLoader;
 import net.comboro.server.plugin.PluginMap;
@@ -23,7 +22,7 @@ public final class Application {
     static final Properties properties = new Properties();
 
     public static final Color error = new Color(178, 34, 34);
-    public static Color defaultColour = Color.BLACK;
+    static Color defaultColour = Color.BLACK;
 
     private Application(){
     }
@@ -33,6 +32,7 @@ public final class Application {
         betterUI = new BetterUI();
         // Load the server configuration
         betterUI.setTitle(serverInfoFile.getName());
+        betterUI.setDebugging(serverInfoFile.isDebugging());
 
         // Start server
         tcp_server = new TCPServerImpl(serverInfoFile.getPort());

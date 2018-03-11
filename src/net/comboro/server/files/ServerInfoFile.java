@@ -4,9 +4,10 @@ public class ServerInfoFile extends ExternalFile {
 
     private String name = "SimpleNet Server";
     private int port = 47247;
+    private int maxCharsPerLine = 200;
     private boolean debugging = false;
 
-    public ServerInfoFile() {
+    ServerInfoFile() {
         super("server.info");
 
         // Update variables
@@ -28,6 +29,9 @@ public class ServerInfoFile extends ExternalFile {
                     case "Debugging":
                         debugging = Boolean.valueOf(value);
                         break;
+                    case "MaxCharsPerLine":
+                        setMaxCharsPerLine(Integer.valueOf(value));
+                        break;
                 }
             }
         }
@@ -39,6 +43,7 @@ public class ServerInfoFile extends ExternalFile {
         println("Name: " + getName());
         println("Port: " + getPort());
         println("Debugging: " + isDebugging());
+        println("MaxCharsPerLine: " + getMaxCharsPerLine());
     }
 
     public void changeName(String name){
@@ -63,5 +68,13 @@ public class ServerInfoFile extends ExternalFile {
 
     public boolean isDebugging() {
         return debugging;
+    }
+
+    public int getMaxCharsPerLine() {
+        return maxCharsPerLine;
+    }
+
+    public void setMaxCharsPerLine(int maxCharsPerLine) {
+        this.maxCharsPerLine = maxCharsPerLine;
     }
 }

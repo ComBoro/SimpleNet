@@ -24,12 +24,10 @@ import net.comboro.server.Server;
 import net.comboro.server.command.CommandMap;
 import net.comboro.server.command.CommandSender;
 import net.comboro.server.command.defaults.ThisCommand;
+import net.comboro.server.files.ExternalFile;
 import net.comboro.server.networking.TCPServerImpl;
 import net.comboro.server.plugin.Plugin;
 import net.comboro.server.plugin.PluginException;
-
-import javax.swing.text.SimpleAttributeSet;
-import javax.swing.text.StyleConstants;
 
 import javax.swing.*;
 import javax.swing.text.*;
@@ -45,7 +43,9 @@ public class BetterUI extends JFrame {
     private static final long serialVersionUID = 1L;
     private static final AttributeSet timeAset = StyleContext
             .getDefaultStyleContext().addAttribute(SimpleAttributeSet.EMPTY,
-                    StyleConstants.Foreground, Color.GRAY);
+                    StyleConstants.Foreground, Color.GRAY), blankAset = StyleContext
+            .getDefaultStyleContext().addAttribute(SimpleAttributeSet.EMPTY,
+                    StyleConstants.Foreground, Color.WHITE);
     private static final List<String> lastCommands = new ArrayList<>();
     private JTextPane consoleTextPane;
     private JCheckBox debuggingCheckBox;
@@ -73,7 +73,7 @@ public class BetterUI extends JFrame {
         initComponents();
 
         Runtime.getRuntime().addShutdownHook(
-                new Thread(() -> Application.shutdown()));
+                new Thread(Application::shutdown));
     }
 
     public void append(final String str, final Color c){
@@ -112,13 +112,21 @@ public class BetterUI extends JFrame {
                     doc.insertString(doc.getLength(), time, timeAset);
                 } else skipDate = false;
 
+                int maxChatPerLine = ExternalFile.serverInfoFile.getMaxCharsPerLine();
+
+                for (int pos = 0; pos < str.length(); pos += maxChatPerLine) {
+                    int endCut = pos + Math.min(maxChatPerLine, str.length() - pos);
+                    String line = str.substring(pos, endCut) + System.lineSeparator();
+                    doc.insertString(doc.getLength(), line, attributeSet);
+
+                    if (endCut < pos + maxChatPerLine) break;
+                }
+
                 String line = str;
                 if(endLine && !line.endsWith(System.lineSeparator()))
                     line +=  System.lineSeparator();
                 else
                     skipDate = true;
-
-                doc.insertString(doc.getLength(), line, attributeSet);
 
                 Application.log(time + line);
 
@@ -169,7 +177,7 @@ public class BetterUI extends JFrame {
         JButton jButton1 = new JButton();
         commandLine = new JTextField();
         debuggingCheckBox = new JCheckBox();
-        JMenuBar menuBar = new JMenuBar();
+        JMenuBar menuBar;
 
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setTitle("SimpleNet Server");
@@ -431,7 +439,7 @@ public class BetterUI extends JFrame {
         return debugging;
     }
 
-    private void setDebugging(boolean debugging) {
+    public void setDebugging(boolean debugging) {
         debuggingCheckBox.setSelected(debugging);
         Application.setDebugging(debugging);
         if (debugging) {

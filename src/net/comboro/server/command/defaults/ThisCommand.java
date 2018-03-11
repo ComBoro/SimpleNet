@@ -3,6 +3,7 @@ package net.comboro.server.command.defaults;
 import net.comboro.server.Application;
 import net.comboro.server.Server;
 import net.comboro.server.command.CommandSender;
+import net.comboro.server.files.ExternalFile;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -11,7 +12,7 @@ public class ThisCommand extends DefaultCommand {
 
     public ThisCommand() {
         super("ThisCommand", "Adjusts or checks server information",
-                "this <properties/clear/name/version/mem/rst/sort>", "this clear");
+                "this <properties/clear/name/version/maxCharsPerLine/mem/rst/sort>", "this clear");
     }
 
     public static void clear() {
@@ -70,23 +71,34 @@ public class ThisCommand extends DefaultCommand {
                 clear();
                 break;
             case "name":
-                if(argsLengh == 1)
+                if (argsLengh == 1)
                     sender.sendMessage("Server name: " + Server.getName());
                 else
                     Server.setName(args[1]);
                 break;
             case "port":
-                if(argsLengh == 1)
+                if (argsLengh == 1)
                     sender.sendMessage("Server port: " + Server.getPort());
                 else {
-                    try{
+                    try {
                         int port = Integer.parseInt(args[1]);
-                        if(port < 0 || port > 65_535) throw new NumberFormatException();
+                        if (port < 0 || port > 65_535) throw new NumberFormatException();
                         Server.setPort(port);
-                    }catch (NumberFormatException nfe){
+                    } catch (NumberFormatException nfe) {
                         sender.sendMessage("Invalid port. Nothing was changed");
                     }
                 }
+                break;
+            case "maxCharsPerLine":
+                if (argsLengh == 1)
+                    sender.sendMessage("Max chars per line: " + ExternalFile.serverInfoFile.getMaxCharsPerLine());
+                else
+                    try {
+                        int maxCharsPerLine = Integer.parseInt(args[1]);
+                        ExternalFile.serverInfoFile.setMaxCharsPerLine(maxCharsPerLine);
+                    } catch (NumberFormatException nfe) {
+                        sender.sendMessage("Not a number. Nothing was changed");
+                    }
                 break;
             case "mem":
                 sender.sendMessage("Used memory: " + usedMem() + " MB in "
