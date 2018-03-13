@@ -6,9 +6,14 @@ import java.io.*;
 
 public class ExternalFile {
 
-    public static LogFile logFile = new LogFile();
+    public static LogFile logFile;
     public static ServerInfoFile serverInfoFile = new ServerInfoFile();
     public static BanListFile banListFile = new BanListFile();
+
+    static {
+        Loader.loadDirectory("logs");
+        logFile = new LogFile();
+    }
 
     public static void closeStatic(){
         serverInfoFile.closeFile();

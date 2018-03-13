@@ -18,21 +18,19 @@
 
 package net.comboro.server.networking;
 
-import net.comboro.encryption.rsa.RSAInformation;
-import net.comboro.server.Application;
-import net.comboro.server.Server;
 import net.comboro.SerializableMessage;
 import net.comboro.Server.ServerListener.ServerAdapter;
+import net.comboro.encryption.rsa.RSAInformation;
 import net.comboro.internet.tcp.ClientTCP;
 import net.comboro.internet.tcp.ServerTCP;
+import net.comboro.server.Application;
+import net.comboro.server.Server;
 import net.comboro.server.command.CommandMap;
 
 import java.awt.*;
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.net.BindException;
 import java.net.InetAddress;
-import java.net.Socket;
 import java.net.UnknownHostException;
 
 import static net.comboro.server.Server.*;
@@ -72,6 +70,10 @@ public class TCPServerImpl extends ServerTCP {
                     append("Internal IP: " + InetAddress.getLocalHost().getHostAddress());
                 } catch (UnknownHostException e) {}
                 resetDefaultColour();
+
+                synchronized (Application.startLock) {
+                    Application.startLock.notify();
+                }
             }
 
             @Override

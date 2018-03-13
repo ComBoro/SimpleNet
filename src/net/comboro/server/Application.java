@@ -21,6 +21,8 @@ public final class Application {
     static TCPServerImpl tcp_server;
     static final Properties properties = new Properties();
 
+    public static Object startLock = new Object();
+
     public static final Color error = new Color(178, 34, 34);
     static Color defaultColour = Color.BLACK;
 
@@ -37,6 +39,15 @@ public final class Application {
         // Start server
         tcp_server = new TCPServerImpl(serverInfoFile.getPort());
         tcp_server.startServer();
+
+        synchronized (startLock) {
+            try {
+                startLock.wait();
+            } catch (InterruptedException e) {
+                System.exit(0);
+            }
+        }
+        startLock = null;
 
         // Basic auto response
         initProperties();

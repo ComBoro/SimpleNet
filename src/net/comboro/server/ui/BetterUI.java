@@ -76,12 +76,12 @@ public class BetterUI extends JFrame {
                 new Thread(Application::shutdown));
     }
 
-    public void append(final String str, final Color c){
-        this.append(str,c,false,true);
+    public void append(final String str, final Color c) {
+        this.append(str, c, false, true);
     }
 
     public void append(final String str, Color color, boolean endLine) {
-        this.append(str,color,false,endLine);
+        this.append(str, color, false, endLine);
     }
 
 
@@ -89,7 +89,7 @@ public class BetterUI extends JFrame {
         SimpleAttributeSet attributeSet = new SimpleAttributeSet();
         StyleConstants.setForeground(attributeSet, color);
         StyleConstants.setBold(attributeSet, bold);
-        append(str,attributeSet,endLine);
+        append(str, attributeSet, endLine);
     }
 
     public void append(final String str, AttributeSet attributeSet, boolean endLine) {
@@ -103,7 +103,7 @@ public class BetterUI extends JFrame {
 
                 Document doc = consoleTextPane.getDocument();
                 String time = "";
-                if(!skipDate){
+                if (!skipDate) {
                     time = "[ "
                             + DateFormat.getTimeInstance().format(
                             new Date(System.currentTimeMillis()))
@@ -116,19 +116,22 @@ public class BetterUI extends JFrame {
 
                 for (int pos = 0; pos < str.length(); pos += maxChatPerLine) {
                     int endCut = pos + Math.min(maxChatPerLine, str.length() - pos);
-                    String line = str.substring(pos, endCut) + System.lineSeparator();
+                    boolean lastIteration = endCut < pos + maxChatPerLine;
+                    String line = str.substring(pos, endCut);
+                    if (!lastIteration)
+                        line += System.lineSeparator();
+                    else if (endLine)
+                        line += System.lineSeparator();
+                    else
+                        skipDate = true;
+
+
                     doc.insertString(doc.getLength(), line, attributeSet);
 
-                    if (endCut < pos + maxChatPerLine) break;
+                    if (lastIteration) break;
                 }
 
-                String line = str;
-                if(endLine && !line.endsWith(System.lineSeparator()))
-                    line +=  System.lineSeparator();
-                else
-                    skipDate = true;
-
-                Application.log(time + line);
+                Application.log(time + str);
 
                 consoleTextPane.setCaretPosition(consoleTextPane
                         .getDocument().getLength());
@@ -189,7 +192,7 @@ public class BetterUI extends JFrame {
         clientsList.setToolTipText("Shows all the connected clients");
         clientsScrollPane.setViewportView(clientsList);
 
-        clientsList.setModel(new AbstractListModel<>(){
+        clientsList.setModel(new AbstractListModel<>() {
             @Override
             public int getSize() {
                 TCPServerImpl impl = Application.getTCPImpl();
@@ -237,6 +240,14 @@ public class BetterUI extends JFrame {
         menuBar = new JMenuBar();
 
         JMenu thisMenu = new JMenu("Server");
+
+        JMenuItem changeNameItem = new JMenuItem("Change name");
+        changeNameItem.addActionListener(ae -> {
+            String name = JOptionPane.showInputDialog(null, "Entitle the server", ExternalFile.serverInfoFile.getName());
+            if (name == null || name.equals("")) return;
+            CommandMap.dispatch(CommandSender.UI, "this name " + name);
+        });
+        thisMenu.add(changeNameItem);
 
         JMenuItem internalRestart = new JMenuItem("Internal Restart");
         internalRestart.addActionListener(ae -> {
@@ -399,14 +410,14 @@ public class BetterUI extends JFrame {
     }
 
     public void updatePluginsPane() {
-        if(plugin == null || Application.getPluginMap() == null) {
+        if (plugin == null || Application.getPluginMap() == null) {
             return;
         }
         Set<Plugin> pset = new HashSet(Application.getPluginMap().getPlugins());
-            while(plugin.getItemCount() > 7)
-                plugin.remove(7);
-            for (Plugin plg : pset)
-                plugin.add(genMenu(plg));
+        while (plugin.getItemCount() > 7)
+            plugin.remove(7);
+        for (Plugin plg : pset)
+            plugin.add(genMenu(plg));
 
     }
 
@@ -427,7 +438,7 @@ public class BetterUI extends JFrame {
             if (Application.getPluginMap().getPlugins().contains(plg))
                 Application.getPluginLoader().unload(plg);
 
-             plugin.remove(temp);
+            plugin.remove(temp);
 
         });
         temp.add(unload);
@@ -554,11 +565,11 @@ public class BetterUI extends JFrame {
                 });
     }
 
-    public void clearConsole(){
+    public void clearConsole() {
         consoleTextPane.setText("");
     }
 
-    public void updateUI(){
+    public void updateUI() {
         clientsList.updateUI();
     }
 

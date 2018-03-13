@@ -30,7 +30,7 @@ public class ThisCommand extends DefaultCommand {
 
     @Override
     public boolean execute(CommandSender sender, String[] args) {
-        if (!(sender == CommandSender.CONSOLE))
+        if (!(sender == CommandSender.CONSOLE || sender == CommandSender.UI))
             return false;
 
         final int argsLengh = args.length;
