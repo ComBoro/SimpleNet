@@ -1,9 +1,9 @@
-module cmbrNetServer {
-    requires java.desktop;
-    requires transitive cmbrNetLibrary;
+module SimpleNet {
+	exports net.comboro.server.command;
+	exports net.comboro.server.networking;
+	exports net.comboro.server.plugin;
+	exports net.comboro.server.files;
 
-    exports net.comboro.server.plugin;
-    exports net.comboro.server.command;
-    exports net.comboro.server.networking;
-    exports net.comboro.server;
+	requires transitive cmbrNetLibrary;
+	requires transitive java.desktop;
 }

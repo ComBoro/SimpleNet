@@ -18,7 +18,6 @@
 
 package net.comboro.server;
 
-import net.comboro.server.files.ExternalFile;
 import net.comboro.server.plugin.Plugin;
 
 import java.awt.*;
@@ -83,7 +82,7 @@ public final class Server {
     }
 
     public static void error(String error) {
-        debug(error, Application.error);
+        debug(error, Application.ERROR);
     }
 
     public static void error(Exception e){
@@ -132,22 +131,6 @@ public final class Server {
 
     public static void setPort(int port){
         serverInfoFile.changePort(port);
-    }
-
-    /**
-     * @return if the server is offline
-     */
-    public static boolean isOffline() {
-        return offline;
-    }
-
-    /**
-     * Set the server as online or offline.
-     *
-     * @param offline set the server's offline state
-     */
-    private static void setOffline(boolean offline) {
-        Application.offline = offline;
     }
 
     /**

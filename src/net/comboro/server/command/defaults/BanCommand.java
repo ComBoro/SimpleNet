@@ -21,6 +21,7 @@ package net.comboro.server.command.defaults;
 
 import net.comboro.server.Server;
 import net.comboro.server.command.CommandSender;
+import net.comboro.server.command.Commands;
 
 
 public class BanCommand extends DefaultCommand {
@@ -33,6 +34,8 @@ public class BanCommand extends DefaultCommand {
 
     @Override
     public boolean execute(CommandSender sender, String[] args) {
+    	Commands.requirePermission(sender, "ban", "unban");
+    	
         if (args.length != 1) {
             sender.sendMessage("Invalid arguments");
             return false;

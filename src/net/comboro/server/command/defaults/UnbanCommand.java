@@ -21,6 +21,7 @@ package net.comboro.server.command.defaults;
 
 import net.comboro.server.Server;
 import net.comboro.server.command.CommandSender;
+import net.comboro.server.command.Commands;
 
 public class UnbanCommand extends DefaultCommand {
 
@@ -30,6 +31,8 @@ public class UnbanCommand extends DefaultCommand {
 
     @Override
     public boolean execute(CommandSender sender, String[] args) {
+    	Commands.requirePermission(sender, "ban", "unban");
+    	
         if (args.length == 0)
             return false;
         String ip = args[0].trim();

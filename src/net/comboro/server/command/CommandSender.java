@@ -18,47 +18,17 @@
 
 package net.comboro.server.command;
 
-import net.comboro.server.Server;
-
-import java.awt.*;
+import java.util.Collection;
 
 public interface CommandSender {
 
-    final CommandSender UI = new CommandSender() {
-        @Override
-        public String getName() {
-            return "SimpleNet UI";
-        }
-
-        @Override
-        public String getSeparator() {
-            return " ";
-        }
-
-        @Override
-        public void sendMessage(String message) {
-            Server.append(message, Color.darkGray);
-        }
-    }, CONSOLE = new CommandSender() {
-        @Override
-        public String getName() {
-            return "Console";
-        }
-
-        @Override
-        public String getSeparator() {
-            return " ";
-        }
-
-        @Override
-        public void sendMessage(String message) {
-            Server.append(message, Color.darkGray);
-        }
-    };
-
     String getName();
 
-    String getSeparator();
+    default String getSeparator() {
+    	return " ";
+    }
 
     void sendMessage(String message);
+
+    Collection<String> getPermissions();
 }

@@ -18,13 +18,14 @@
 
 package net.comboro.server.networking;
 
-import net.comboro.SerializableMessage;
-import net.comboro.Server.ServerListener.ServerAdapter;
 import net.comboro.encryption.rsa.RSAInformation;
-import net.comboro.internet.tcp.ClientTCP;
-import net.comboro.internet.tcp.ServerTCP;
 import net.comboro.server.Application;
 import net.comboro.server.Server;
+import net.comboro.SerializableMessage;
+import net.comboro.TaggedMessage;
+import net.comboro.Server.ServerListener.ServerAdapter;
+import net.comboro.internet.tcp.ClientTCP;
+import net.comboro.internet.tcp.ServerTCP;
 import net.comboro.server.command.CommandMap;
 
 import java.awt.*;
@@ -50,9 +51,25 @@ public class TCPServerImpl extends ServerTCP {
 
             @Override
             public void onClientInput(ClientTCP client,
-                                      SerializableMessage message) {
+                                      SerializableMessage<?> message) {
                 if (message.getData() instanceof String)
                     Server.debug((String) message.getData());
+                
+                if(message instanceof TaggedMessage<?>) {
+                	TaggedMessage<?> firstUnbox = (TaggedMessage<?>) message;
+                	String[] tags = firstUnbox.getTags();
+                	for(int i = 0; i < tags.length; i++) {
+                		String tag = tags[i];
+                		if(tag.equalsIgnoreCase("Command") || tag.equalsIgnoreCase("cmd")) {
+                            FinalClientTCP finalClientTCP = new FinalClientTCP((ClientTCP) client);
+                			String cmd = (String) message.getData();
+                			CommandMap.dispatch(finalClientTCP, cmd);
+                			return;
+                		}
+                	}
+                	
+                }
+                
                 Application.getPluginMap().onClientInput(client, message);
             }
 
@@ -71,7 +88,7 @@ public class TCPServerImpl extends ServerTCP {
                 } catch (UnknownHostException e) {}
                 resetDefaultColour();
 
-                synchronized (Application.startLock) {
+                synchronized (Application.startLock){
                     Application.startLock.notify();
                 }
             }

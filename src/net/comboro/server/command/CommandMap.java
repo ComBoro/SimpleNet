@@ -29,120 +29,133 @@ import java.util.Map;
 
 public class CommandMap {
 
-    private static boolean commandRequested = false;
-    private static String command = "";
-    private static final Object lock = new Object();
+	private static boolean commandRequested = false;
+	private static String command = "";
+	private static final Object lock = new Object();
 
-    private static final Map<String, Command> commands = new HashMap<>();
+	private static final Map<String, Command> commands = new HashMap<>();
 
-    public static void addDefaults() {
-        register("help", new HelpCommand());
-        register("plugins", new PluginsCommand());
-        register("ban", new BanCommand());
-        register("unban", new UnbanCommand());
-        register("this", new ThisCommand());
-    }
+	public static void addDefaults() {
+		register("help", new HelpCommand());
+		register("plugins", new PluginsCommand());
+		register("ban", new BanCommand());
+		register("unban", new UnbanCommand());
+		register("this", new ThisCommand());
+	}
 
-    /**
-     * Executes the command and notifies all the plugins
-     *
-     * @param sender      The {@link CommandSender} of the command.
-     * @param commandLine The raw command line enetered
-     */
-    public static void dispatch(CommandSender sender, String commandLine) {
-        if (commandRequested) {
-            commandRequested = false;
-            command = commandLine;
-            synchronized (lock) {
-                lock.notify();
-            }
-            return;
-        }
+	/**
+	 * Executes the command and notifies all the plugins
+	 *
+	 * @param sender
+	 *            The {@link CommandSender} of the command.
+	 * @param commandLine
+	 *            The raw command line enetered
+	 */
+	public static void dispatch(CommandSender sender, String commandLine) {
+		if (commandRequested) {
+			commandRequested = false;
+			command = commandLine;
+			synchronized (lock) {
+				lock.notify();
+			}
+			return;
+		}
 
-        Server.debug("Command: " + commandLine, Color.GRAY);
-        Server.debug("Sender: " + sender.getName(), Color.GRAY);
+		Server.debug("Command: " + commandLine, Color.GRAY);
+		Server.debug("Sender: " + sender.getName(), Color.GRAY);
 
-        String[] args = commandLine.split(sender.getSeparator());
+		String[] args = commandLine.split(sender.getSeparator());
 
-        Command command;
+		Command command;
 
-        if (args.length == 0)
-            command = getCommand(commandLine);
-        else
-            command = getCommand(args[0]);
+		if (args.length == 0)
+			command = getCommand(commandLine);
+		else
+			command = getCommand(args[0]);
 
-        if (command != null)
-            command.execute(sender, Arrays.copyOfRange(args, 1, args.length));
-        else {
-            boolean result = Application.getPluginMap().onCommand(sender, args[0],
-                    Arrays.copyOfRange(args, 1, args.length));
-            if (!result)
-                Server.append(sender.getName() + " send invalid command.");
-        }
-    }
+		if (command != null) {
+			if (Commands.hasAnyPermission(sender, args[0])) {
+				try {
+					command.execute(sender, Arrays.copyOfRange(args, 1, args.length));
+				} catch (InsufficientPermissionsException ipe) {
+					ipe.getCommandSender().sendMessage("Deficient permissions, lacking permission '" + ipe.getPermission() + "'");
+				}
+			} else
+				sender.sendMessage("Deficient permissions");
+		} else {
+			boolean result = Application.getPluginMap().onCommand(sender, args[0],
+					Arrays.copyOfRange(args, 1, args.length));
+			if (!result)
+				Server.append(sender.getName() + " send invalid command.");
+		}
+	}
 
-    /**
-     * Gets a command by its label.
-     *
-     * @param name The label of the command
-     * @return The command if found else returns null
-     */
-    public static Command getCommand(String name) {
-        return commands.get(name.toLowerCase());
-    }
+	/**
+	 * Gets a command by its label.
+	 *
+	 * @param name
+	 *            The label of the command
+	 * @return The command if found else returns null
+	 */
+	public static Command getCommand(String name) {
+		return commands.get(name.toLowerCase());
+	}
 
-    public static Map<String, Command> getCommands() {
-        return commands;
-    }
+	public static Map<String, Command> getCommands() {
+		return commands;
+	}
 
-    public static String nextCommand() {
-        commandRequested = true;
-        synchronized (lock) {
-            try {
-                lock.wait(0);
-                Application.clearCommandLine();
-                return command;
-            } catch (InterruptedException e) {
-                return null;
-            }
-        }
-    }
+	public static String nextCommand() {
+		commandRequested = true;
+		synchronized (lock) {
+			try {
+				lock.wait(0);
+				Application.clearCommandLine();
+				return command;
+			} catch (InterruptedException e) {
+				return null;
+			}
+		}
+	}
 
-    /**
-     * Registers a command.
-     *
-     * @param label   The label that the command wants to be called by
-     * @param command The {@link Command} class representative
-     * @return if the command was registered successfully
-     */
-    public static boolean register(String label, Command command) {
-        label = label.toLowerCase().trim();
-        if (commands.containsKey(label) || commands.containsValue(command))
-            return false;
-        commands.put(label, command);
-        return true;
-    }
+	/**
+	 * Registers a command.
+	 *
+	 * @param label
+	 *            The label that the command wants to be called by
+	 * @param command
+	 *            The {@link Command} class representative
+	 * @return if the command was registered successfully
+	 */
+	public static boolean register(String label, Command command) {
+		label = label.toLowerCase().trim();
+		if (commands.containsKey(label) || commands.containsValue(command))
+			return false;
+		commands.put(label, command);
+		return true;
+	}
 
-    /**
-     * Unregisters a command.
-     *
-     * @param command The command class that will be unregistered
-     */
-    public static void unregister(Command command) {
-        if (!commands.values().contains(command))
-            return;
-        String cmd = null;
+	/**
+	 * Unregisters a command.
+	 *
+	 * @param command
+	 *            The command class that will be unregistered
+	 */
+	public static void unregister(Command command) {
+		if (!commands.values().contains(command))
+			return;
+		String cmd = null;
 
-        for (Map.Entry<String, Command> entry : commands.entrySet()) {
-            if (entry.getValue().equals(command)) {
-                cmd = entry.getKey();
-                break;
-            }
-        }
+		for (Map.Entry<String, Command> entry : commands.entrySet()) {
+			if (entry.getValue().equals(command)) {
+				cmd = entry.getKey();
+				break;
+			}
+		}
 
-        if (cmd == null)
-            return;
-        commands.remove(cmd);
-    }
+		if (cmd == null)
+			return;
+		commands.remove(cmd);
+	}
 
 }

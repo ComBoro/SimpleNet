@@ -19,64 +19,61 @@
 
 package net.comboro.server.command.defaults;
 
-import net.comboro.server.Server;
 import net.comboro.server.command.Command;
 import net.comboro.server.command.CommandMap;
 import net.comboro.server.command.CommandSender;
+import net.comboro.server.command.Commands;
 
 public class HelpCommand extends DefaultCommand {
 
-    public HelpCommand() {
-        super("Help Command", "Lists all registered commands",
-                "help all/<cmdName>", "help help");
-    }
+	public HelpCommand() {
+		super("Help Command", "Lists all registered commands", "help all/<cmdName>", "help help");
+	}
 
-    @Override
-    public boolean execute(CommandSender sender, String[] args) {
+	@Override
+	public boolean execute(CommandSender sender, String[] args) {
+		boolean listAll = false;
+		if (args.length != 0)
+			listAll = args[0].equalsIgnoreCase("all");
 
-        boolean listAll = false;
-        if (args.length != 0)
-            listAll = args[0].equalsIgnoreCase("all");
+		if (args.length > 0 && !listAll) {
 
-        if (args.length > 0 && !listAll) {
+			if (args[0].equals("threads")) {
+					Commands.requirePermission(sender, "help.threads");
+					sender.sendMessage("Active Threads : " + Thread.activeCount());
+				return true;
+			}
 
-            if (args[0].equals("threads")) {
-                sender.sendMessage("Active Threads : " + Thread.activeCount());
-                return true;
-            }
+			Command command = CommandMap.getCommand(args[0]);
+			if (command == null) {
+				sender.sendMessage("Command not found");
+				return true;
+			}
+			sender.sendMessage(printCommand(command));
+			return true;
+		} else {
+			sender.sendMessage("List of Commands: ");
+			for (int i = 0; i < CommandMap.getCommands().values().size(); i++) {
+				Command command = (Command) CommandMap.getCommands().values().toArray()[i];
+				if (command.isListable() || listAll)
+					sender.sendMessage(printCommand(command));
+				// else i--;
+			}
+			return true;
+		}
 
-            Command command = CommandMap.getCommand(args[0]);
-            if (command == null) {
-                sender.sendMessage("Command not found");
-                return true;
-            }
-            sender.sendMessage(printCommand(command));
-            return true;
-        } else {
-            Server.append("Listing all commands");
-            sender.sendMessage("List of Commands: ");
-            for (int i = 0; i < CommandMap.getCommands().values().size(); i++) {
-                Command command = (Command) CommandMap.getCommands().values()
-                        .toArray()[i];
-                if (command.isListable() || listAll)
-                    sender.sendMessage(printCommand(command));
-                // else i--;
-            }
-            return true;
-        }
+	}
 
-    }
-
-    private String printCommand(Command cmd){
-        StringBuilder sb = new StringBuilder("Name: ");
-        sb.append(cmd.getName());
-        sb.append(", Description: ");
-        sb.append(cmd.getDescription());
-        sb.append(", Syntax: ");
-        sb.append(cmd.getSyntax());
-        sb.append(", Example: ");
-        sb.append(cmd.getExample());
-        return sb.toString();
-    }
+	private String printCommand(Command cmd) {
+		StringBuilder sb = new StringBuilder("Name: ");
+		sb.append(cmd.getName());
+		sb.append(", Description: ");
+		sb.append(cmd.getDescription());
+		sb.append(", Syntax: ");
+		sb.append(cmd.getSyntax());
+		sb.append(", Example: ");
+		sb.append(cmd.getExample());
+		return sb.toString();
+	}
 
 }
