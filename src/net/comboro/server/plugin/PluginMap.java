@@ -26,7 +26,8 @@ import net.comboro.server.command.Command;
 import net.comboro.server.command.CommandMap;
 import net.comboro.server.command.CommandSender;
 import net.comboro.internet.tcp.ClientTCP;
-import net.comboro.internet.tcp.FinalClientTCP;
+import net.comboro.server.command.Commands;
+import net.comboro.server.networking.FinalClientTCP;
 
 import javax.swing.*;
 import java.util.*;
@@ -153,14 +154,12 @@ public class PluginMap {
     public boolean onClientInput(Client client, SerializableMessage<?> message) {
         synchronized (synmap) {
             boolean success = false;
+            FinalClientTCP finalClientTCP = FinalClientTCP.get((ClientTCP) client);
             for (Plugin fp : synmap.keySet()) {
                 try {
-                    FinalClientTCP finalClientTCP = new FinalClientTCP((ClientTCP) client);
-                    boolean result = fp.onClientInput(finalClientTCP, message);
-                    if (result) {
-                        success = true;
+                	success = fp.onClientInput(finalClientTCP, message);
+                    if (success) 
                         break;
-                    }
                 } catch (Exception exception) {
                     success = false;
                     Server.debug(fp, " Error executing client input.");
@@ -177,19 +176,20 @@ public class PluginMap {
      * @param client The client who has just left
      */
     public void onClientDisconnect(Client client) {
-        Application.updateClientsPane();
+        FinalClientTCP finalClientTCP = FinalClientTCP.get((ClientTCP) client);
         synchronized (synmap) {
             for (Plugin plugin : synmap.keySet()) {
                 if (plugin instanceof ServerPlugin) {
                     ServerPlugin serverPlugin = (ServerPlugin) plugin;
                     try {
-                        serverPlugin.onClientDisconnect(new FinalClientTCP((ClientTCP) client));
+                        serverPlugin.onClientDisconnect(finalClientTCP);
                     } catch (Exception e) {
                         Server.error(e);
                     }
                 }
             }
         }
+        Application.updateClientsPane(finalClientTCP, false);
     }
 
     /**
@@ -198,19 +198,21 @@ public class PluginMap {
      * @param client The client who has just connected
      */
     public void onClientConnect(Client client) {
+        FinalClientTCP finalClientTCP = FinalClientTCP.get((ClientTCP) client);
+        Commands.attachPermissions(finalClientTCP);
         synchronized (synmap) {
-            Application.updateClientsPane();
             for (Plugin plugin : synmap.keySet()) {
                 if (plugin instanceof ServerPlugin) {
                     ServerPlugin serverPlugin = (ServerPlugin) plugin;
                     try {
-                        serverPlugin.onClientConnect(new FinalClientTCP((ClientTCP) client));
+                        serverPlugin.onClientConnect(finalClientTCP);
                     } catch (Exception e) {
                         Server.error(e);
                     }
                 }
             }
         }
+        Application.updateClientsPane(finalClientTCP, true);
     }
 
     /**

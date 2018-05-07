@@ -18,7 +18,7 @@
 
 package net.comboro.server.plugin;
 
-import net.comboro.internet.tcp.FinalClientTCP;
+import net.comboro.server.networking.FinalClientTCP;
 
 public abstract class ServerPlugin extends Plugin {
 

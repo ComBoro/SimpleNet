@@ -29,7 +29,6 @@ import java.util.Objects;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
-@SuppressWarnings("ResultOfMethodCallIgnored")
 public class PluginLoader {
 
     private final File directory;
@@ -159,6 +158,7 @@ public class PluginLoader {
 
             PluginClassLoader loader = new PluginClassLoader(description, dataFolder, defaultConfig, file);
             Plugin plugin = loader.getPlugin();
+            loader.close();
             jars.put(file, true);
             pluginMap.register(plugin);
             return plugin;
@@ -201,7 +201,7 @@ public class PluginLoader {
         try {
             plugin.onDisable();
             plugin.getLoader().close();
-        } catch (Exception e) {
+        } catch (Throwable e) {
             Server.debug("Error disabling plugin "
                     + plugin.getDescription().getName()
                     + ". Moving on regardless...");

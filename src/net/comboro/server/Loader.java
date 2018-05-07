@@ -27,7 +27,7 @@ import java.io.IOException;
  */
 public class Loader {
 
-    private static final String path_bin = System.getProperty("user.dir");
+    public static final String path_bin = System.getProperty("user.dir");
 
 
     /**

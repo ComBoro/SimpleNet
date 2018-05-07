@@ -1,3 +1,21 @@
+/*
+ *   ComBoro's Network Server
+ *   Copyright (C) 2018  ComBoro
+ *
+ *   This program is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   This program is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 package net.comboro.server.files;
 
 import net.comboro.server.Loader;
@@ -9,10 +27,10 @@ public class ExternalFile {
     public static LogFile logFile;
     public static ServerInfoFile serverInfoFile = new ServerInfoFile();
     public static BanListFile banListFile = new BanListFile();
-
+    
     static {
-        Loader.loadDirectory("logs");
-        logFile = new LogFile();
+    	Loader.loadDirectory("logs");
+    	logFile = new LogFile();
     }
 
     public static void closeStatic(){

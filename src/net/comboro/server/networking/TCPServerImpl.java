@@ -18,6 +18,7 @@
 
 package net.comboro.server.networking;
 
+import net.comboro.Client;
 import net.comboro.encryption.rsa.RSAInformation;
 import net.comboro.server.Application;
 import net.comboro.server.Server;
@@ -27,12 +28,14 @@ import net.comboro.Server.ServerListener.ServerAdapter;
 import net.comboro.internet.tcp.ClientTCP;
 import net.comboro.internet.tcp.ServerTCP;
 import net.comboro.server.command.CommandMap;
+import net.comboro.server.command.defaults.BanCommand;
 
 import java.awt.*;
 import java.io.IOException;
 import java.net.BindException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Arrays;
 
 import static net.comboro.server.Server.*;
 
@@ -44,8 +47,15 @@ public class TCPServerImpl extends ServerTCP {
         ServerAdapter<ClientTCP> SERVER_ADAPTER = new ServerAdapter<>() {
             @Override
             public void onClientConnect(ClientTCP client) {
-                //TODO: ban list
+                boolean isBanned = Server.getBanList().contains(client.getDisplayName().split(":")[0]);
+                if(isBanned){
+                    client.send("The ban hammer has spoken.");
+                    removeClient(client);
+                    return;
+                }
+
                 Application.getPluginMap().onClientConnect(client);
+
                 append("Client connected",Color.GREEN);
             }
 
@@ -61,7 +71,7 @@ public class TCPServerImpl extends ServerTCP {
                 	for(int i = 0; i < tags.length; i++) {
                 		String tag = tags[i];
                 		if(tag.equalsIgnoreCase("Command") || tag.equalsIgnoreCase("cmd")) {
-                            FinalClientTCP finalClientTCP = new FinalClientTCP((ClientTCP) client);
+                            FinalClientTCP finalClientTCP = FinalClientTCP.get(client);
                 			String cmd = (String) message.getData();
                 			CommandMap.dispatch(finalClientTCP, cmd);
                 			return;
@@ -71,6 +81,8 @@ public class TCPServerImpl extends ServerTCP {
                 }
                 
                 Application.getPluginMap().onClientInput(client, message);
+
+                Application.updateClientsPane(null, false);
             }
 
             @Override
@@ -107,6 +119,8 @@ public class TCPServerImpl extends ServerTCP {
                     }
                     Application.clearConsole();
                     startServer();
+                } else {
+                    e.printStackTrace();
                 }
             }
 

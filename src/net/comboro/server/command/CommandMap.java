@@ -23,9 +23,13 @@ import net.comboro.server.Server;
 import net.comboro.server.command.defaults.*;
 
 import java.awt.*;
+import java.util.List;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class CommandMap {
 
@@ -41,6 +45,7 @@ public class CommandMap {
 		register("ban", new BanCommand());
 		register("unban", new UnbanCommand());
 		register("this", new ThisCommand());
+		register("permission", new PermissionCommand());
 	}
 
 	/**
@@ -64,7 +69,12 @@ public class CommandMap {
 		Server.debug("Command: " + commandLine, Color.GRAY);
 		Server.debug("Sender: " + sender.getName(), Color.GRAY);
 
-		String[] args = commandLine.split(sender.getSeparator());
+		List<String> list = new ArrayList<>();
+		Matcher m = Pattern.compile("([^\"]\\S*|\".+?\")\\s*").matcher(commandLine);
+		while (m.find())
+			list.add(m.group(1).replace("\"", ""));
+
+		String[] args = list.stream().toArray(String[]::new);
 
 		Command command;
 
@@ -81,7 +91,7 @@ public class CommandMap {
 					ipe.getCommandSender().sendMessage("Deficient permissions, lacking permission '" + ipe.getPermission() + "'");
 				}
 			} else
-				sender.sendMessage("Deficient permissions");
+				sender.sendMessage(Commands.NO_PERMISSON);
 		} else {
 			boolean result = Application.getPluginMap().onCommand(sender, args[0],
 					Arrays.copyOfRange(args, 1, args.length));

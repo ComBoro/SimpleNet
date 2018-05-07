@@ -23,7 +23,7 @@ import net.comboro.server.Server;
 import net.comboro.SerializableMessage;
 import net.comboro.server.command.Command;
 import net.comboro.server.command.CommandSender;
-import net.comboro.internet.tcp.FinalClientTCP;
+import net.comboro.server.networking.FinalClientTCP;
 
 import javax.swing.*;
 import java.awt.*;

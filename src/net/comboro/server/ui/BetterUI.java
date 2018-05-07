@@ -22,18 +22,17 @@ import net.comboro.server.Application;
 import net.comboro.server.Loader;
 import net.comboro.server.Server;
 import net.comboro.server.command.CommandMap;
-import net.comboro.server.command.CommandSender;
+import net.comboro.server.command.Commands;
 import net.comboro.server.command.defaults.ThisCommand;
 import net.comboro.server.files.ExternalFile;
-import net.comboro.server.networking.TCPServerImpl;
+import net.comboro.server.networking.FinalClientTCP;
 import net.comboro.server.plugin.Plugin;
 import net.comboro.server.plugin.PluginException;
 
 import javax.swing.*;
 import javax.swing.text.*;
 import java.awt.*;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
+import java.awt.event.*;
 import java.io.*;
 import java.text.DateFormat;
 import java.util.*;
@@ -43,9 +42,7 @@ public class BetterUI extends JFrame {
     private static final long serialVersionUID = 1L;
     private static final AttributeSet timeAset = StyleContext
             .getDefaultStyleContext().addAttribute(SimpleAttributeSet.EMPTY,
-                    StyleConstants.Foreground, Color.GRAY), blankAset = StyleContext
-            .getDefaultStyleContext().addAttribute(SimpleAttributeSet.EMPTY,
-                    StyleConstants.Foreground, Color.WHITE);
+                    StyleConstants.Foreground, Color.GRAY);
     private static final List<String> lastCommands = new ArrayList<>();
     private JTextPane consoleTextPane;
     private JCheckBox debuggingCheckBox;
@@ -62,12 +59,9 @@ public class BetterUI extends JFrame {
 
     private JScrollPane licenseScrollPane;
 
-    private JList<String> clientsList;
-
-    // Creating plugin help page stuff
-    private boolean pluginsTabOpened = false;
-
-    private JScrollPane pluginHelpTabScrollPane;
+    private List<FinalClientTCP> clientListData = new ArrayList<>();
+    private Map<FinalClientTCP, JComponent> clientDebugMap = new HashMap<>();
+    private JList<String> clientsList = new JList<>();
 
     public BetterUI() {
         initComponents();
@@ -95,7 +89,7 @@ public class BetterUI extends JFrame {
     public void append(final String str, AttributeSet attributeSet, boolean endLine) {
         if (str == null || str.trim().length() == 0)
             return;
-
+                
         SwingUtilities.invokeLater(() -> {
             try {
                 if (consoleTextPane == null)
@@ -162,7 +156,7 @@ public class BetterUI extends JFrame {
             System.setOut(out);
 
             PrintStream err = new PrintStream(new ConsoleOutputStream(
-                    Application.error), true, "UTF-8");
+                    Application.ERROR), true, "UTF-8");
             System.setErr(err);
         } catch (IOException e) {
             e.printStackTrace();
@@ -173,7 +167,6 @@ public class BetterUI extends JFrame {
 
         JTabbedPane clientsTabbedPane = new JTabbedPane();
         JScrollPane clientsScrollPane = new JScrollPane();
-        clientsList = new JList<>();
         consoleTabbedPane = new JTabbedPane();
         JScrollPane jScrollPane1 = new JScrollPane();
         consoleTextPane = new JTextPane();
@@ -193,20 +186,30 @@ public class BetterUI extends JFrame {
         clientsScrollPane.setViewportView(clientsList);
 
         clientsList.setModel(new AbstractListModel<>() {
-            @Override
+			private static final long serialVersionUID = 1L;
+
+			@Override
             public int getSize() {
-                TCPServerImpl impl = Application.getTCPImpl();
-                return impl == null ? 0 : impl.getClientList().size();
+                return clientListData.size();
             }
 
             @Override
             public String getElementAt(int index) {
-                TCPServerImpl impl = Application.getTCPImpl();
-                return impl == null ? "[NULL IMPL]" : impl.getClientList().get(index).getThreadName();
+                return clientListData.get(index).getName();
             }
+
         });
 
+        clientsList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
         clientsTabbedPane.addTab("Clients", clientsScrollPane);
+
+        clientsTabbedPane.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                BetterUI.this.removeClient(null);
+            }
+        });
 
         jScrollPane1.setViewportView(consoleTextPane);
 
@@ -242,10 +245,10 @@ public class BetterUI extends JFrame {
         JMenu thisMenu = new JMenu("Server");
 
         JMenuItem changeNameItem = new JMenuItem("Change name");
-        changeNameItem.addActionListener(ae -> {
-            String name = JOptionPane.showInputDialog(null, "Entitle the server", ExternalFile.serverInfoFile.getName());
-            if (name == null || name.equals("")) return;
-            CommandMap.dispatch(CommandSender.UI, "this name " + name);
+        changeNameItem.addActionListener(ae ->{
+            String name = JOptionPane.showInputDialog(null,"Entitle the server",ExternalFile.serverInfoFile.getName());
+            if(name==null || name.equals("")) return;
+            CommandMap.dispatch(Commands.UI,"this name \"" + name + "\"");
         });
         thisMenu.add(changeNameItem);
 
@@ -330,7 +333,7 @@ public class BetterUI extends JFrame {
 
         JMenuItem help = new JMenuItem("Help");
         help.addActionListener(event ->
-                CommandMap.dispatch(CommandSender.UI, "help all")
+                CommandMap.dispatch(Commands.UI, "help all")
         );
         about.add(help);
 
@@ -413,7 +416,7 @@ public class BetterUI extends JFrame {
         if (plugin == null || Application.getPluginMap() == null) {
             return;
         }
-        Set<Plugin> pset = new HashSet(Application.getPluginMap().getPlugins());
+        Set<Plugin> pset = new HashSet<>(Application.getPluginMap().getPlugins());
         while (plugin.getItemCount() > 7)
             plugin.remove(7);
         for (Plugin plg : pset)
@@ -510,7 +513,7 @@ public class BetterUI extends JFrame {
 
     private void onButtonClick() {
         String command = commandLine.getText().trim();
-        CommandMap.dispatch(CommandSender.CONSOLE, command);
+        CommandMap.dispatch(Commands.CONSOLE, command);
         clearCommandLine();
         if (!command.equals(""))
             lastCommands.add(command);
@@ -538,7 +541,8 @@ public class BetterUI extends JFrame {
                                     doc.insertString(doc.getLength(), line
                                             + System.lineSeparator(), simple);
                                 }
-
+                                buff.close();
+                                
                                 StyledDocument docm = tf.getStyledDocument();
                                 SimpleAttributeSet center = new SimpleAttributeSet();
                                 StyleConstants.setAlignment(center,
@@ -569,8 +573,22 @@ public class BetterUI extends JFrame {
         consoleTextPane.setText("");
     }
 
-    public void updateUI() {
+    public void addClient(FinalClientTCP clientTCP){
+        clientListData.add(clientTCP);
+        updateUI();
+    }
+
+    public void removeClient(FinalClientTCP clientTCP){
+        if(clientTCP != null) clientListData.remove(clientTCP);
+        updateUI();
+    }
+
+    private void updateUI(){
+        clientsList.setListData(
+                clientListData.stream().map(FinalClientTCP::getName).toArray(String[]::new)
+        );
         clientsList.updateUI();
+        clientsList.ensureIndexIsVisible(clientListData.size());
     }
 
 }

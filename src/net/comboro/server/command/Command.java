@@ -22,53 +22,56 @@ package net.comboro.server.command;
  * Abstract class representing the basics of every command
  */
 public abstract class Command {
-    private final String name, description, syntax, example;
+	private final String name, description, syntax, example;
 
-    private final boolean listable;
+	private final boolean listable;
 
-    protected Command(String name, String description, String syntax, String example) {
-        this(name, description, syntax, example,true);
-    }
+	protected Command(String name, String description, String syntax, String example) {
+		this(name, description, syntax, example, true);
+	}
 
-    protected Command(String name, String description, String syntax, String example,
-                      boolean listable) {
-        this.name = name;
-        this.description = description;
-        this.syntax = syntax;
-        this.example = example;
-        this.listable = listable;
-    }
+	protected Command(String name, String description, String syntax, String example, boolean listable) {
+		this.name = name;
+		this.description = description;
+		this.syntax = syntax;
+		this.example = example;
+		this.listable = listable;
+	}
 
-    /**
-     * Called when the command executes
-     *
-     * @param sender The sender of the command
-     * @param args   The arguments following the label of the command
-     * @return if the command was executed successfully
-     */
-    public abstract boolean execute(CommandSender sender, String args[]);
+	/**
+	 * Called when the command executes
+	 *
+	 * @param sender
+	 *            The sender of the command
+	 * @param args
+	 *            The arguments following the label of the command
+	 * @return if the command was executed successfully
+	 */
+	public abstract boolean execute(CommandSender sender, String args[]);
 
-    public String getDescription() {
-        return description;
-    }
+	public String getDescription() {
+		return description;
+	}
 
-    public String getName() {
-        return name;
-    }
+	public String getName() {
+		return name;
+	}
 
-    public String getSyntax() {
-        return syntax;
-    }
+	public String getSyntax() {
+		return syntax;
+	}
 
-    public String getExample(){return example;}
+	public String getExample() {
+		return example;
+	}
 
-    public boolean isListable() {
-        return listable;
-    }
+	public boolean isListable() {
+		return listable;
+	}
 
-    @Override
-    public String toString() {
-        return getClass().getName() + "( " + name + " )";
-    }
+	@Override
+	public String toString() {
+		return getClass().getName() + "( " + name + " )";
+	}
 
 }
